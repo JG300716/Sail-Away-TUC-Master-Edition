@@ -5,41 +5,34 @@ using UnityEngine.Serialization;
 namespace Game.Assets
 {
     
-    public enum YachtState : byte
-    {
-        No_Sail = 0x00,
-        Grot_Only = 0x01,
-        Fok_Only = 0x02,
-        Grot_and_Fok = 0x03
-    }
+
     
     public class YachtPhysics : MonoBehaviour
     {
         // --- Parametry fizyczne powietrza i wody ---
-        public double RhoAir = 1.225; // gęstość powietrza [kg/m³]
-        public double RhoWater = 1025; // gęstość wody [kg/m³]
+        [SerializeField] public double RhoAir = 1.225; // gęstość powietrza [kg/m³]
+        [SerializeField] public double RhoWater = 1025; // gęstość wody [kg/m³]
 
         // --- Parametry jachtu ---
-        public double BoatMass = 2700.0; // masa jachtu [kg]
-        public double WettedArea = 10.0; // powierzchnia zmoczona kadłuba [m²]
-        public double DragCoeffHull = 0.009; // opór kadłuba [-]
+        [SerializeField] public double BoatMass = 2700.0; // masa jachtu [kg]
+        [SerializeField] public double WettedArea = 10.0; // powierzchnia zmoczona kadłuba [m²]
+        [SerializeField] public double DragCoeffHull = 0.009; // opór kadłuba [-]
 
         // --- Parametry aerodynamiczne żagli ---
-        public double SailAreaGrot = 20.0; // powierzchnia grota [m²]
-        public double SailAreaFok = 15.0; // powierzchnia foka [m²]
+        [SerializeField] public double SailAreaGrot = 20.0; // powierzchnia grota [m²]
+        [SerializeField] public double SailAreaFok = 15.0; // powierzchnia foka [m²]
 
         // --- Charakterystyki aerodynamiczne żagli ---
-        public double ClAlpha = 0.1; // przyrost siły nośnej na radian
-        public double ClMax = 1.2; // maksymalny Cl przed przeciągnięciem
-        public double Cd0 = 0.01; // bazowy współczynnik oporu
-        public double K = 0.05; // współczynnik indukowanego oporu
+        [SerializeField] public double ClAlpha = 0.1; // przyrost siły nośnej na radian
+        [SerializeField] public double ClMax = 1.2; // maksymalny Cl przed przeciągnięciem
+        [SerializeField] public double Cd0 = 0.01; // bazowy współczynnik oporu
+        [SerializeField] public double K = 0.05; // współczynnik indukowanego oporu
 
         // --- Kąty ustawienia żagli względem osi jachtu ---
-        public double SheetAngleGrot = 10.0; // kąt grota [°]
-        [FormerlySerializedAs("SheetAngleFok")] public double SheetAngleFok = 12.0; // kąt genuy [°]
+        [SerializeField] public float SheetAngleGrot = 0.0f; // kąt grota [°]
+        [SerializeField] public float SheetAngleFok = 0.0f; // kąt foka [°]
         
-        public WindManager windManager;
-        public YachtState yachtState = YachtState.No_Sail;
+        [SerializeField] public WindManager windManager;
         
         private bool Initialized = false;
         void Start()
@@ -47,13 +40,13 @@ namespace Game.Assets
             Initialized = windManager != null; 
         }
 
-        public double ComputeAcceleration(double boatSpeed, double boatHeadingDeg)
+        public double ComputeAcceleration(double boatSpeed, double boatHeadingDeg, YachtSailState yachtState)
         {
             if (!Initialized) return 0.0;
             
             // Wiatr pozorny (Apparent Wind)
-            double betaTrue = DegToRad(windManager.getWindDirection());
-            double V_true = windManager.getWindSpeed();
+            double betaTrue = DegToRad(windManager.WindDegree);
+            double V_true = windManager.WindSpeed;
             
             // Kąt między wiatrem a łódką (w stopniach)
             double relativeWindDeg = Math.Clamp(betaTrue - boatHeadingDeg, 0, 360);
@@ -67,8 +60,8 @@ namespace Game.Assets
             double betaAW = Math.Atan2(vy, -vx); // kąt pozornego wiatru względem osi jachtu
 
             // Siła aerodynamiczna dla grota i foka
-            bool grotSet = (yachtState & YachtState.Grot_Only) != 0 || (yachtState & YachtState.Grot_and_Fok) != 0;
-            bool fokSet  = (yachtState & YachtState.Fok_Only)  != 0 || (yachtState & YachtState.Grot_and_Fok) != 0;
+            bool grotSet = (yachtState & YachtSailState.Grot_Only) != 0 || (yachtState & YachtSailState.Grot_and_Fok) != 0;
+            bool fokSet  = (yachtState & YachtSailState.Fok_Only)  != 0 || (yachtState & YachtSailState.Grot_and_Fok) != 0;
 
             double FdriveGrot = grotSet
                     ? ComputeSailForce(SailAreaGrot, SheetAngleGrot, Va, betaAW)
