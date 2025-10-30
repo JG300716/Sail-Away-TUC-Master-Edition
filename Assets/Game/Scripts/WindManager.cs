@@ -29,7 +29,7 @@ namespace Game.Assets
         {
             WindSpeed = windSpeed;
             WindDegree = windDirectionDeg;
-            GenerateSteadyWindFlag = false;
+            GenerateSteadyWindFlag = true;
             UpdateSteadyWind = false;
         }
 

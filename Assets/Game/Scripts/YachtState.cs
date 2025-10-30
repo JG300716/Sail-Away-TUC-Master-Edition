@@ -26,8 +26,16 @@ namespace Game.Assets
             V_current = 0.0;
             Deg_from_north = 0.0;
             Initialized = yachtPhysics != null;
+            
         }
 
+        void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, transform.position + transform.forward * 20);
+            Gizmos.DrawSphere(transform.position + transform.forward * 20, 0.2f); // optional endpoint
+        }
+        
         public void ApplyRotation(float deltaDeg)
         {
             Deg_from_north = (Deg_from_north + deltaDeg) % 360.0;
