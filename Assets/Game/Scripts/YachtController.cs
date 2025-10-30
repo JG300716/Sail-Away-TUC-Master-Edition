@@ -38,6 +38,7 @@ namespace Game.Assets
         {
             if (Input.GetKey(KeyCode.A)) rudderAngle -= rudderStep * Time.deltaTime * 60f;
             if (Input.GetKey(KeyCode.D)) rudderAngle += rudderStep * Time.deltaTime * 60f;
+            if (Input.GetKey(KeyCode.Space)) rudderAngle = 0f;
             rudderAngle = Mathf.Clamp(rudderAngle, rudderMin, rudderMax);
         }
 
