@@ -32,6 +32,7 @@ namespace Game.Assets
             ApplySteering();
         }
 
+        
         #region Steering AD
         private void HandleSteeringInput()
         {
@@ -42,6 +43,7 @@ namespace Game.Assets
 
         private void ApplySteering()
         {
+            yachtState.ApplyRotation(rudderAngle * Time.deltaTime);
             transform.Rotate(0f, rudderAngle * Time.deltaTime, 0f);
         }
         #endregion

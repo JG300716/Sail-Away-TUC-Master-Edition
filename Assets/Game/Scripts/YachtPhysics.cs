@@ -5,8 +5,6 @@ using UnityEngine.Serialization;
 namespace Game.Assets
 {
     
-
-    
     public class YachtPhysics : MonoBehaviour
     {
         // --- Parametry fizyczne powietrza i wody ---

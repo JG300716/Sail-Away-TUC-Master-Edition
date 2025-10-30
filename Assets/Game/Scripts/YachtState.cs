@@ -12,6 +12,7 @@ namespace Game.Assets
     
     public class YachtState : MonoBehaviour
     {
+        [SerializeField] public double Acceleration; // przyspieszenie [m/s²]
         [SerializeField] public double V_current; // prędkość [m/s]
         [SerializeField] public double Deg_from_north; // kąt od północy [°]
         [SerializeField] public YachtSailState SailState = YachtSailState.No_Sail;
@@ -27,10 +28,18 @@ namespace Game.Assets
             Initialized = yachtPhysics != null;
         }
 
+        public void ApplyRotation(float deltaDeg)
+        {
+            Deg_from_north = (Deg_from_north + deltaDeg) % 360.0;
+            if (Deg_from_north < 0) Deg_from_north += 360.0;
+        }
+        
         void Update()
         {
             if (!Initialized) return;
-            V_current += yachtPhysics.ComputeAcceleration(V_current, Deg_from_north, SailState) * Time.deltaTime;
+            Acceleration = yachtPhysics.ComputeAcceleration(V_current, Deg_from_north, SailState);
+            V_current += Acceleration * Time.deltaTime;
+            transform.Translate(Vector3.forward * (float)(V_current * Time.deltaTime));
         }
 
     }

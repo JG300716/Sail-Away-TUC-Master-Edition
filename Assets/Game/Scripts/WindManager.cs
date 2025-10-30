@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 
-using UnityEngine;
-
 namespace Game.Assets
 {
     public class WindManager : MonoBehaviour
@@ -10,10 +8,12 @@ namespace Game.Assets
         [SerializeField] public float minWindSpeed = 0.0f; // minimalna prędkość wiatru [m/s]
         [SerializeField] public float maxWindSpeed = 15.0f; // maksymalna prędkość wiatru [m/s]
         [SerializeField] public double WindSpeed; // aktualna prędkość wiatru [m/s]
-
+        [SerializeField] private double TargetWindSpeed; // docelowa prędkość wiatru [m/s]
+        
         [SerializeField] public float minWindDirectionDeg = 0.0f; // minimalny kierunek wiatru [°]
         [SerializeField] public float maxWindDirectionDeg = 360.0f; // maksymalny kierunek wiatru [°]
         [SerializeField] public double WindDegree; // aktualny kąt wiatru względem północy [°]
+        [SerializeField] private double TargetWindDegree; // docelowy kąt wiatru względem północy [°]
 
         [Header("Steady wind settings")]
         [SerializeField] public double steadyWindChangeInterval = 10.0; // czas między zmianami wiatru [s]
@@ -22,6 +22,7 @@ namespace Game.Assets
 
         private double timeSinceLastChange = 0.0;
         public bool GenerateSteadyWindFlag = false; // flaga generowania wiatru stałego
+        private bool UpdateSteadyWind = false;
 
         // --- Konstruktor ---
         public WindManager(double windSpeed = 5.0, double windDirectionDeg = 0.0)
@@ -29,6 +30,7 @@ namespace Game.Assets
             WindSpeed = windSpeed;
             WindDegree = windDirectionDeg;
             GenerateSteadyWindFlag = false;
+            UpdateSteadyWind = false;
         }
 
         // --- Ustawienia ręczne ---
@@ -48,20 +50,30 @@ namespace Game.Assets
         // --- Generowanie wiatru ze stałymi krokami ---
         public void GenerateSteadyWind(double deltaTime)
         {
-            timeSinceLastChange += deltaTime;
-            if (timeSinceLastChange < steadyWindChangeInterval) return;
-
             // Losowy cel wiatru
-            double targetSpeed = UnityEngine.Random.Range(minWindSpeed, maxWindSpeed);
-            double targetDirection = UnityEngine.Random.Range(minWindDirectionDeg, maxWindDirectionDeg);
-
-            // Stopniowe przybliżanie do celu z określonym krokiem
-            WindSpeed = MoveTowards(WindSpeed, targetSpeed, windSpeedStep);
-            WindDegree = MoveTowardsAngle(WindDegree, targetDirection, windDirectionStep);
+            TargetWindSpeed = UnityEngine.Random.Range(minWindSpeed, maxWindSpeed);
+            TargetWindDegree = UnityEngine.Random.Range(minWindDirectionDeg, maxWindDirectionDeg);
 
             timeSinceLastChange = 0.0;
+            GenerateSteadyWindFlag = false;
+            UpdateSteadyWind = true;
         }
 
+        public void UpdateSteadyWindConditions(double deltaTime)
+        {
+            timeSinceLastChange += deltaTime;
+            if (timeSinceLastChange < steadyWindChangeInterval) return;
+            
+            // Stopniowe przybliżanie do celu z określonym krokiem
+            WindSpeed = MoveTowards(WindSpeed, TargetWindSpeed, windSpeedStep);
+            WindDegree = MoveTowardsAngle(WindDegree, TargetWindDegree, windDirectionStep);
+
+            timeSinceLastChange = 0.0;
+            
+            UpdateSteadyWind = !(Mathf.Approximately((float)WindSpeed, (float)TargetWindSpeed) &&
+                                     Mathf.Approximately((float)WindDegree, (float)TargetWindDegree));
+        }
+        
         // --- Reset wiatru ---
         public void ResetWind()
         {
@@ -71,10 +83,8 @@ namespace Game.Assets
 
         void Update()
         {
-            if (GenerateSteadyWindFlag)
-            {
-                GenerateSteadyWind(Time.deltaTime);
-            }
+            if (GenerateSteadyWindFlag) GenerateSteadyWind(Time.deltaTime);
+            if (UpdateSteadyWind) UpdateSteadyWindConditions(Time.deltaTime);
         }
 
         // --- Pomocnicze funkcje ---
