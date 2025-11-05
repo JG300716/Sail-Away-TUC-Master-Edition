@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class BoatCameraLook : MonoBehaviour
+public class CameraController : MonoBehaviour
 {
     public float sensitivity = 2f;
     public float clampAngle = 80f;
@@ -8,9 +8,15 @@ public class BoatCameraLook : MonoBehaviour
     private float rotX;
     private float rotY;
 
+    public Camera boatCamera;
+    
     void Start()
     {
-        Vector3 rot = transform.localRotation.eulerAngles;
+        if (boatCamera == null)
+        {
+            boatCamera = Camera.main;
+        }
+        Vector3 rot = boatCamera.transform.localRotation.eulerAngles;
         rotY = rot.y;
         rotX = rot.x;
 
@@ -27,6 +33,6 @@ public class BoatCameraLook : MonoBehaviour
         rotX = Mathf.Clamp(rotX, -clampAngle, clampAngle);
 
         Quaternion localRotation = Quaternion.Euler(rotX, rotY, 0f);
-        transform.localRotation = localRotation;
+        boatCamera.transform.localRotation = localRotation;
     }
 }

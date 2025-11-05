@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Unity.VisualScripting;
+using UnityEngine;
 
 namespace Game.Assets
 {
@@ -10,9 +11,13 @@ namespace Game.Assets
     
     public class YachtController : MonoBehaviour
     {
+        [Header("References")]
         [SerializeField] private YachtState yachtState;       // Obiekt stanu jachtu
         [SerializeField] private YachtPhysics yachtPhysics;   // Obiekt fizyki jachtu
-
+        [SerializeField] private CameraController cameraController; // Kontroler kamery
+        [SerializeField] private Camera mainCamera;            // Główna kamera
+        [SerializeField] private Camera secondCamera;
+        
         [Header("Steering")]
         [SerializeField] private float rudderStep = 2f;
         [SerializeField] private float rudderMin = -30f;
@@ -22,16 +27,37 @@ namespace Game.Assets
         [Header("Sail Control")]
         [SerializeField] private float sailStep = 2f; // stopień zmiany kąta żagla na tick
         private SelectedSail selectedSail = SelectedSail.Grot;
-
+        private WindManager Wind => WindManager.Instance;
+        
+        
         void Update()
         {
             HandleSteeringInput();
             HandleSailStateInput();
             HandleSailSelectionInput();
             HandleSailAngleInput();
+            HandleCameraSwap();
             ApplySteering();
+            var windDir = Quaternion.Euler(0, (float)Wind.WindDegree, 0) * Vector3.forward;
+            Debug.DrawLine(transform.position, transform.position + windDir * 5f, Color.cyan);
         }
 
+        void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, transform.position + transform.forward * 3);
+        }
+        
+        void HandleCameraSwap()
+        {
+            if (!Input.GetKeyDown(KeyCode.Tab)) return;
+            if (mainCamera.IsUnityNull() || secondCamera.IsUnityNull()) return;
+            var isMainCameraActive = mainCamera.enabled;
+
+            mainCamera.enabled = !isMainCameraActive;
+            secondCamera.enabled = isMainCameraActive;
+            cameraController.boatCamera = isMainCameraActive ? secondCamera : mainCamera;
+        }
         
         #region Steering AD
         private void HandleSteeringInput()

@@ -26,14 +26,6 @@ namespace Game.Assets
             V_current = 0.0;
             Deg_from_north = 0.0;
             Initialized = yachtPhysics != null;
-            
-        }
-
-        void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, transform.position + transform.forward * 20);
-            Gizmos.DrawSphere(transform.position + transform.forward * 20, 0.2f); // optional endpoint
         }
         
         public void ApplyRotation(float deltaDeg)
@@ -45,10 +37,17 @@ namespace Game.Assets
         void Update()
         {
             if (!Initialized) return;
+            
             Acceleration = yachtPhysics.ComputeAcceleration(V_current, Deg_from_north, SailState);
             V_current += Acceleration * Time.deltaTime;
+            
+            // Ograniczenie minimalnej prędkości (żeby nie cofał się w nieskończoność)
+            if (V_current < -2.0) V_current = -2.0;
+            
             transform.Translate(Vector3.forward * (float)(V_current * Time.deltaTime));
+            
+            // Aktualizacja przechyłu i ruchu na falach
+            yachtPhysics.UpdateHeelAndMotion(Time.deltaTime, V_current);
         }
-
     }
 }
