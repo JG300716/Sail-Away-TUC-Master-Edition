@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using Game.Scripts;
+using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
 
-namespace Game.Assets
+namespace Game.Scripts
 {
     public class WindCompassUI : MonoBehaviour
     {

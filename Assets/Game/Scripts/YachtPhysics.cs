@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace Game.Assets
+namespace Game.Scripts
 {
     public class YachtPhysics : MonoBehaviour
     {

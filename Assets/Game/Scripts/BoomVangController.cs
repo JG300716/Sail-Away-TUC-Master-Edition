@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Assets
+namespace Game.Scripts
 {
     /// <summary>
     /// Kontroler obciągacza bomu (boom vang) - naciąga/luzuje liny

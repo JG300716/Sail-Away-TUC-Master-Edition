@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Assets
+namespace Game.Scripts
 {
     /// <summary>
     /// System kontroli żagla z szkieletem bone'ów dla realistycznej animacji

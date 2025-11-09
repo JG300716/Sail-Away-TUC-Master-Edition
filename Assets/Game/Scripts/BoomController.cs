@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Assets
+namespace Game.Scripts
 {
     public class BoomController : MonoBehaviour
     {

@@ -1,7 +1,7 @@
 ﻿using Unity.VisualScripting;
 using UnityEngine;
 
-namespace Game.Assets
+namespace Game.Scripts
 {
     public enum SelectedSail
     {
