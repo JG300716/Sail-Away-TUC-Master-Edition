@@ -5,205 +5,261 @@ namespace Game.Scripts
 {
     public class YachtPhysics : MonoBehaviour
     {
-        // --- Parametry fizyczne powietrza i wody ---
-        [SerializeField] public double RhoAir = 1.225; // gęstość powietrza [kg/m³]
-        [SerializeField] public double RhoWater = 1025; // gęstość wody [kg/m³]
-
-        // --- Parametry jachtu ---
-        [SerializeField] public double BoatMass = 2700.0; // masa jachtu [kg]
-        [SerializeField] public double WettedArea = 10.0; // powierzchnia zmoczona kadłuba [m²]
-        [SerializeField] public double DragCoeffHull = 0.009; // opór kadłuba [-]
-        [SerializeField] public double MaxSpeed = 15.0; // maksymalna prędkość jachtu [m/s]
-
-        // --- Parametry przechyłu ---
+        [Header("Cloth Integration")]
+        [SerializeField] private bool useClothPhysics = true;
+        [SerializeField] private SailClothPhysics grotCloth;
+        [SerializeField] private SailClothPhysics fokCloth;
+        
+        [Header("Physical Parameters")]
+        [SerializeField] private double rhoWater = 1025.0; // Gęstość wody [kg/m³]
+        [SerializeField] private double boatMass = 2700.0; // Masa jachtu [kg]
+        [SerializeField] private double wettedArea = 10.0; // Powierzchnia zmoczona [m²]
+        [SerializeField] private double dragCoeffHull = 0.009; // Współczynnik oporu kadłuba
+        [SerializeField] private double maxSpeed = 15.0; // Maksymalna prędkość [m/s]
+        
         [Header("Heel (Przechył)")]
-        [SerializeField] public float heelAngle = 0f; // aktualny kąt przechyłu [°]
-        [SerializeField] public float maxHeelAngle = 35f; // maksymalny kąt przechyłu [°]
-        [SerializeField] public float heelSpeed = 2f; // prędkość zmiany przechyłu
-        [SerializeField] public float heelDamping = 3f; // tłumienie przechyłu
+        [SerializeField] private float heelAngle = 0f;
+        [SerializeField] private float maxHeelAngle = 35f;
+        [SerializeField] private float heelSpeed = 2f;
+        [SerializeField] private float heelDamping = 3f;
         
-        // --- Parametry kołysania (pitch/roll) ---
         [Header("Wave Motion")]
-        [SerializeField] public float pitchAmplitude = 2f; // amplituda kołysania przód-tył [°]
-        [SerializeField] public float pitchFrequency = 0.5f; // częstotliwość kołysania
-        [SerializeField] public float rollWaveAmplitude = 1f; // amplituda bocznego kołysania [°]
-        [SerializeField] public float rollWaveFrequency = 0.3f;
-
-        // --- Parametry aerodynamiczne żagli ---
-        [SerializeField] public double SailAreaGrot = 20.0; // powierzchnia grota [m²]
-        [SerializeField] public double SailAreaFok = 15.0; // powierzchnia foka [m²]
-
-        // --- Charakterystyki aerodynamiczne żagli ---
-        [SerializeField] public double ClAlpha = 0.1; // przyrost siły nośnej na radian
-        [SerializeField] public double ClMax = 1.2; // maksymalny Cl przed przeciągnięciem
-        [SerializeField] public double Cd0 = 0.01; // bazowy współczynnik oporu
-        [SerializeField] public double K = 0.05; // współczynnik indukowanego oporu
-
-        // --- Kąty ustawienia żagli względem osi jachtu ---
-        [SerializeField] public float SheetAngleGrot = 0.0f; // kąt grota [°]
-        [SerializeField] public float SheetAngleFok = 0.0f; // kąt foka [°]
+        [SerializeField] private float pitchAmplitude = 2f;
+        [SerializeField] private float pitchFrequency = 0.5f;
+        [SerializeField] private float rollWaveAmplitude = 1f;
+        [SerializeField] private float rollWaveFrequency = 0.3f;
         
-        [SerializeField] private Transform boatModel; // model jachtu do animacji przechyłu
+        [Header("Boat Model")]
+        [SerializeField] private Transform boatModel;
         
-        private bool Initialized = false;
+        [Header("Debug")]
+        [SerializeField] private bool enableDebugLogs = false;
+        
+        private bool initialized = false;
         private float waveTime = 0f;
-        private double lateralForce = 0.0; // siła boczna do obliczania przechyłu
+        private double lateralForce = 0.0;
+        private Rigidbody rb;
 
-        private WindManager Wind => WindManager.Instance;
-        
         void Start()
         {
-            Initialized = Wind != null;
+            rb = GetComponent<Rigidbody>();
+            
+            if (rb == null)
+            {
+                Debug.LogError("[YachtPhysics] Brak Rigidbody!");
+                enabled = false;
+                return;
+            }
+            
             if (boatModel == null)
                 boatModel = transform;
+            
+            initialized = true;
+            
+            if (enableDebugLogs)
+            {
+                Debug.Log("[YachtPhysics] Zainicjalizowano:");
+                Debug.Log($"  Use Cloth Physics: {useClothPhysics}");
+                Debug.Log($"  Grot Cloth: {(grotCloth != null ? "✓" : "✗")}");
+                Debug.Log($"  Fok Cloth: {(fokCloth != null ? "✓" : "✗")}");
+            }
         }
 
+        /// <summary>
+        /// Główna funkcja obliczająca przyspieszenie jachtu
+        /// TYLKO Z CLOTH SIMULATION
+        /// </summary>
         public double ComputeAcceleration(double boatSpeed, double boatHeadingDeg, YachtSailState sailState)
         {
-            if (!Initialized) return 0.0;
+            if (!initialized)
+                return 0.0;
             
-            // Obliczanie wiatru pozornego (Apparent Wind)
-            double windDeg = Wind.WindDegree;
-            double V_true = Wind.WindSpeed;
+            double totalDriveForce = 0.0;
+            double totalLateralForce = 0.0;
             
-            // Kąt między wiatrem a łódką (normalizacja do 0-360°)
-            double relativeWindDeg = (windDeg - boatHeadingDeg + 360.0) % 360.0;
+            if (useClothPhysics)
+            {
+                // === NOWY SPOSÓB: Pobierz siły z Cloth żagli ===
+                
+                bool grotActive = sailState == YachtSailState.Grot_Only || 
+                                 sailState == YachtSailState.Grot_and_Fok;
+                                 
+                bool fokActive = sailState == YachtSailState.Fok_Only || 
+                                sailState == YachtSailState.Grot_and_Fok;
+                
+                if (grotActive && grotCloth != null && grotCloth.enabled)
+                {
+                    totalDriveForce += grotCloth.GetDriveForce();
+                    totalLateralForce += grotCloth.GetLateralForce();
+                }
+                
+                if (fokActive && fokCloth != null && fokCloth.enabled)
+                {
+                    totalDriveForce += fokCloth.GetDriveForce();
+                    totalLateralForce += fokCloth.GetLateralForce();
+                }
+                
+                lateralForce = totalLateralForce;
+                
+                if (enableDebugLogs && Time.frameCount % 60 == 0)
+                {
+                    Debug.Log($"[YachtPhysics] Cloth Forces:");
+                    Debug.Log($"  Drive: {totalDriveForce:F2}N");
+                    Debug.Log($"  Lateral: {totalLateralForce:F2}N");
+                }
+            }
+            else
+            {
+                // Fallback - jeśli Cloth wyłączony, brak siły
+                Debug.LogWarning("[YachtPhysics] Use Cloth Physics is disabled! No sail forces!");
+                totalDriveForce = 0.0;
+                lateralForce = 0.0;
+            }
             
-            // Konwersja na radiany
-            double relativeWindRad = DegToRad(relativeWindDeg);
+            // === OPÓR KADŁUBA ===
+            // R = 0.5 * ρ * A * Cd * v²
+            double resistanceHull = 0.5 * rhoWater * wettedArea * dragCoeffHull * 
+                                   boatSpeed * Math.Abs(boatSpeed);
             
-            // Komponenty wiatru pozornego
-            double vx = V_true * Math.Cos(relativeWindRad) - boatSpeed; // komponent wzdłuż osi jachtu
-            double vy = V_true * Math.Sin(relativeWindRad); // komponent boczny
-            double Va = Math.Sqrt(vx * vx + vy * vy); // prędkość pozornego wiatru
-            double betaAW = Math.Atan2(vy, -vx); // kąt pozornego wiatru względem osi jachtu
-
-            // Siła aerodynamiczna dla grota i foka
-            bool grotSet = sailState == YachtSailState.Grot_Only || sailState == YachtSailState.Grot_and_Fok;
-            bool fokSet = sailState == YachtSailState.Fok_Only || sailState == YachtSailState.Grot_and_Fok;
-
-            double FdriveGrot = 0.0, FlateralGrot = 0.0;
-            double FdriveFok = 0.0, FlateralFok = 0.0;
-
-            if (grotSet)
-                ComputeSailForces(SailAreaGrot, SheetAngleGrot, Va, betaAW, out FdriveGrot, out FlateralGrot);
+            // Opór zawsze przeciwny do kierunku ruchu
+            if (boatSpeed > 0)
+                resistanceHull = -resistanceHull;
+            else if (boatSpeed < 0)
+                resistanceHull = Math.Abs(resistanceHull);
             
-            if (fokSet)
-                ComputeSailForces(SailAreaFok, SheetAngleFok, Va, betaAW, out FdriveFok, out FlateralFok);
-
-            double Fdrive = FdriveGrot + FdriveFok;
-            lateralForce = FlateralGrot + FlateralFok;
-
-            // Opór hydrodynamiczny kadłuba (zawsze działa przeciwnie do ruchu)
-            double R_hull = 0.5 * RhoWater * WettedArea * DragCoeffHull * boatSpeed * Math.Abs(boatSpeed);
-            if (boatSpeed > 0) R_hull = -R_hull; // opór przeciwny do kierunku ruchu
-            else if (boatSpeed < 0) R_hull = Math.Abs(R_hull);
-
-            // Przyspieszenie netto
-            double acceleration = (Fdrive + R_hull) / BoatMass;
-
+            // === PRZYSPIESZENIE ===
+            // F = ma → a = F/m
+            double netForce = totalDriveForce + resistanceHull;
+            double acceleration = netForce / boatMass;
+            
             // Ograniczenie maksymalnej prędkości
-            if (boatSpeed > MaxSpeed && acceleration > 0)
+            if (boatSpeed > maxSpeed && acceleration > 0)
                 acceleration = 0;
-            if (boatSpeed < -MaxSpeed * 0.3 && acceleration < 0)
+            
+            if (boatSpeed < -maxSpeed * 0.3 && acceleration < 0)
                 acceleration = 0;
-
+            
+            if (enableDebugLogs && Time.frameCount % 60 == 0)
+            {
+                Debug.Log($"[YachtPhysics] Acceleration:");
+                Debug.Log($"  Net Force: {netForce:F2}N");
+                Debug.Log($"  Acceleration: {acceleration:F3} m/s²");
+                Debug.Log($"  Speed: {boatSpeed:F2} m/s");
+            }
+            
             return acceleration;
         }
 
-        private void ComputeSailForces(double area, double sheetAngleDeg, double Va, double betaAW, 
-                                       out double Fdrive, out double Flateral)
-        {
-            double sheetRad = DegToRad(sheetAngleDeg);
-            double alpha = betaAW - sheetRad; // kąt natarcia żagla
-
-            // Aerodynamiczne współczynniki żagla
-            double Cl = ClAlpha * alpha;
-            Cl = Math.Clamp(Cl, -ClMax, ClMax);
-            double Cd = Cd0 + K * Cl * Cl;
-
-            // Siły
-            double q = 0.5 * RhoAir * Va * Va; // ciśnienie dynamiczne
-            double L = q * area * Cl; // siła nośna
-            double D = q * area * Cd; // siła oporu
-
-            // Rozkład sił na kierunek ruchu (wzdłuż) i boczny
-            Fdrive = L * Math.Sin(betaAW) - D * Math.Cos(betaAW);
-            Flateral = L * Math.Cos(betaAW) + D * Math.Sin(betaAW);
-        }
-
+        /// <summary>
+        /// Aktualizuje przechył i ruch na falach
+        /// </summary>
         public void UpdateHeelAndMotion(float deltaTime, double boatSpeed)
         {
-            if (boatModel == null) return;
-
-            // Obliczanie docelowego przechyłu na podstawie siły bocznej i prędkości
+            if (boatModel == null)
+                return;
+            
+            // === PRZECHYŁ (HEEL) ===
             float targetHeel = 0f;
-            if (boatSpeed > 0.5) // tylko gdy jacht się porusza
+            
+            if (boatSpeed > 0.5)
             {
-                // Siła boczna normalizowana przez prędkość łódki i powierzchnię żagli
-                double totalSailArea = SailAreaGrot + SailAreaFok;
-                double heelFactor = (lateralForce / (boatSpeed * totalSailArea)) * 10.0;
-                targetHeel = (float)Math.Clamp(heelFactor * maxHeelAngle, -maxHeelAngle, maxHeelAngle);
+                // Przechył zależy od siły bocznej
+                double totalSailArea = 40.0; // Suma powierzchni żagli (dostosuj!)
+                
+                if (totalSailArea > 0)
+                {
+                    double heelFactor = (lateralForce / (boatSpeed * totalSailArea)) * 10.0;
+                    targetHeel = (float)Math.Clamp(heelFactor * maxHeelAngle, -maxHeelAngle, maxHeelAngle);
+                }
             }
-
+            
             // Płynne przejście do docelowego przechyłu
             heelAngle = Mathf.Lerp(heelAngle, targetHeel, heelSpeed * deltaTime);
             
-            // Tłumienie - powrót do poziomu gdy brak siły
+            // Tłumienie - powrót do poziomu
             if (Mathf.Abs(targetHeel) < 0.1f)
+            {
                 heelAngle = Mathf.Lerp(heelAngle, 0f, heelDamping * deltaTime);
-
-            // Efekt falowania (pitch i roll)
+            }
+            
+            // === FALOWANIE (PITCH & ROLL) ===
             waveTime += deltaTime;
+            
             float pitch = Mathf.Sin(waveTime * pitchFrequency * 2f * Mathf.PI) * pitchAmplitude;
             float rollWave = Mathf.Sin(waveTime * rollWaveFrequency * 2f * Mathf.PI) * rollWaveAmplitude;
-
-            // Zależność amplitudy od prędkości
+            
+            // Amplituda zależna od prędkości
             float speedFactor = Mathf.Clamp01((float)boatSpeed / 5f);
             pitch *= speedFactor;
             rollWave *= speedFactor;
-
-            // Aplikacja rotacji
+            
+            // Aplikuj rotację
             boatModel.localRotation = Quaternion.Euler(pitch, 0f, heelAngle + rollWave);
         }
 
-        private double DegToRad(double deg) => deg * Math.PI / 180.0;
-
-        void Update()
+        /// <summary>
+        /// Zwraca aktualny kąt przechyłu
+        /// </summary>
+        public float GetHeelAngle()
         {
-            // Aktualizacja w YachtState
+            return heelAngle;
         }
 
-        // Funkcja pomocnicza do debugowania
-        public double GetApparentWindAngle(double boatSpeed, double boatHeadingDeg)
+        /// <summary>
+        /// Zwraca aktualną siłę boczną
+        /// </summary>
+        public double GetLateralForce()
         {
-            if (!Initialized) return 0.0;
-            
-            double windDeg = Wind.WindDegree;
-            double V_true = Wind.WindSpeed;
-            double relativeWindDeg = (windDeg - boatHeadingDeg + 360.0) % 360.0;
-            double relativeWindRad = DegToRad(relativeWindDeg);
-            
-            double vx = V_true * Math.Cos(relativeWindRad) - boatSpeed;
-            double vy = V_true * Math.Sin(relativeWindRad);
-            double betaAW = Math.Atan2(vy, -vx);
-            
-            return (betaAW * 180.0 / Math.PI + 360.0) % 360.0;
+            return lateralForce;
         }
 
-        public double GetApparentWindSpeed(double boatSpeed, double boatHeadingDeg)
+        void OnDrawGizmos()
         {
-            if (!Initialized) return 0.0;
+            if (!Application.isPlaying || !initialized)
+                return;
             
-            double windDeg = Wind.WindDegree;
-            double V_true = Wind.WindSpeed;
-            double relativeWindDeg = (windDeg - boatHeadingDeg + 360.0) % 360.0;
-            double relativeWindRad = DegToRad(relativeWindDeg);
+            // Rysuj wektor siły napędowej
+            if (grotCloth != null && grotCloth.enabled)
+            {
+                Vector3 grotForce = grotCloth.GetTotalForce();
+                Gizmos.color = Color.green;
+                Gizmos.DrawLine(transform.position, transform.position + grotForce * 0.01f);
+            }
             
-            double vx = V_true * Math.Cos(relativeWindRad) - boatSpeed;
-            double vy = V_true * Math.Sin(relativeWindRad);
+            if (fokCloth != null && fokCloth.enabled)
+            {
+                Vector3 fokForce = fokCloth.GetTotalForce();
+                Gizmos.color = Color.blue;
+                Gizmos.DrawLine(transform.position, transform.position + fokForce * 0.01f);
+            }
+        }
+
+        [ContextMenu("Log Physics State")]
+        private void LogPhysicsState()
+        {
+            Debug.Log("=== YACHT PHYSICS STATE ===");
+            Debug.Log($"Use Cloth Physics: {useClothPhysics}");
+            Debug.Log($"Boat Mass: {boatMass} kg");
+            Debug.Log($"Max Speed: {maxSpeed} m/s");
+            Debug.Log($"Heel Angle: {heelAngle:F2}°");
+            Debug.Log($"Lateral Force: {lateralForce:F2}N");
             
-            return Math.Sqrt(vx * vx + vy * vy);
+            if (rb != null)
+            {
+                Debug.Log($"Current Speed: {rb.linearVelocity.magnitude:F2} m/s");
+            }
+            
+            if (grotCloth != null)
+            {
+                Debug.Log($"Grot Drive Force: {grotCloth.GetDriveForce():F2}N");
+                Debug.Log($"Grot Lateral Force: {grotCloth.GetLateralForce():F2}N");
+            }
+            
+            if (fokCloth != null)
+            {
+                Debug.Log($"Fok Drive Force: {fokCloth.GetDriveForce():F2}N");
+                Debug.Log($"Fok Lateral Force: {fokCloth.GetLateralForce():F2}N");
+            }
         }
     }
 }

@@ -44,10 +44,7 @@ namespace Game.Scripts
             // Ograniczenie minimalnej prędkości (żeby nie cofał się w nieskończoność)
             if (V_current < -2.0) V_current = -2.0;
             
-            transform.Translate(Vector3.forward * (float)(V_current * Time.deltaTime));
-            
-            // Aktualizacja przechyłu i ruchu na falach
-            yachtPhysics.UpdateHeelAndMotion(Time.deltaTime, V_current);
+            //transform.Translate(Vector3.forward * (float)(V_current * Time.deltaTime));
         }
     }
 }

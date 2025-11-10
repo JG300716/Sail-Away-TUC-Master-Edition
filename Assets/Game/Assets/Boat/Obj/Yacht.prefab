@@ -554,7 +554,6 @@ MonoBehaviour:
   K: 0.05
   SheetAngleGrot: 0
   SheetAngleFok: 0
-  windManager: {fileID: 0}
   boatModel: {fileID: 1668082346107189865}
 --- !u!114 &3122139339776209528
 MonoBehaviour:
@@ -787,9 +786,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   yachtState: {fileID: 3122139339776209528}
   yachtPhysics: {fileID: 502857603017065468}
-  windManager: {fileID: 0}
-  boomGrot: {fileID: 0}
-  boomFok: {fileID: 0}
+  boomGrot: {fileID: 8343013165678253177}
+  boomFok: {fileID: 1712481845170415851}
   boomRotationSpeed: 3
   maxBoomAngle: 85
   minBoomAngle: 5
@@ -811,10 +809,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2890c5ec55ea178488d28274b0de496d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boomTransform: {fileID: 0}
-  vangTransform: {fileID: 0}
+  boomTransform: {fileID: 8343013165678253177}
+  vangTransform: {fileID: 2156270831255524069}
   vangLine: {fileID: 0}
-  sailController: {fileID: 0}
+  sailController: {fileID: 3710328480475452324}
   yachtPhysics: {fileID: 502857603017065468}
   vangTension: 0.5
   minVangLength: 1.5
@@ -823,7 +821,7 @@ MonoBehaviour:
   limitBoomAngle: 1
   maxBoomAngleWhenTight: 45
   maxBoomAngleWhenLoose: 85
-  vangAttachPoint: {fileID: 0}
+  vangAttachPoint: {fileID: 2156270831255524069}
   lineColorTight: {r: 1, g: 0, b: 0, a: 1}
   lineColorLoose: {r: 0, g: 1, b: 0, a: 1}
   lineWidth: 0.05
@@ -1161,7 +1159,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   yachtState: {fileID: 3122139339776209528}
   yachtPhysics: {fileID: 502857603017065468}
-  windManager: {fileID: 0}
   boomTransform: {fileID: 1712481845170415851}
   sailMeshRenderer: {fileID: 4650018244351919158}
   sailMeshFilter: {fileID: 0}
@@ -1351,7 +1348,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   yachtState: {fileID: 3122139339776209528}
   yachtPhysics: {fileID: 502857603017065468}
-  windManager: {fileID: 0}
   boomTransform: {fileID: 8343013165678253177}
   sailMeshRenderer: {fileID: 5537971099303590064}
   sailMeshFilter: {fileID: 0}
