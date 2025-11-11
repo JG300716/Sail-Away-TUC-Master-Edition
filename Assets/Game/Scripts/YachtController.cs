@@ -34,11 +34,17 @@ namespace Game.Scripts
         [SerializeField] private SailClothPhysics grotClothPhysics;
         [SerializeField] private SailClothPhysics fokClothPhysics;
         
-        [Header("Boom Control")]
+        [Header("Bom Control")]
         [SerializeField] private ConfigurableJoint grotBoomJoint; // Joint bomu grota
-        [SerializeField] private ConfigurableJoint fokBoomJoint;   // Joint bomu foka (opcjonalnie)
         [SerializeField] private float boomMinAngle = -90f; // Min kąt bomu
         [SerializeField] private float boomMaxAngle = 90f;  // Max kąt bomu
+        
+        [Header("Fok Shot Path")]
+        [SerializeField] private Transform[] points;
+        [SerializeField] private float speed = 3f;
+        [SerializeField] private float t; // 0 → start, points.Length - 1 → end
+        [SerializeField] private Transform FokBone;
+        [SerializeField] private Transform FokShot;
         
         // Aktualne pozycje boomów
         private float currentGrotBoomAngle = 0f;
@@ -97,21 +103,16 @@ namespace Game.Scripts
         {
             if (grotBoomJoint != null)
             {
-                SetBoomJointLimits(grotBoomJoint, boomMinAngle, boomMaxAngle);
+                SetSailJointLimits(grotBoomJoint, boomMinAngle, boomMaxAngle);
                 currentGrotBoomAngle = 0f;
             }
             
-            if (fokBoomJoint != null)
-            {
-                SetBoomJointLimits(fokBoomJoint, boomMinAngle, boomMaxAngle);
-                currentFokBoomAngle = 0f;
-            }
         }
         
         /// <summary>
         /// Ustawia limity kątowe dla ConfigurableJoint bomu
         /// </summary>
-        private void SetBoomJointLimits(ConfigurableJoint joint, float minAngle, float maxAngle)
+        private void SetSailJointLimits(ConfigurableJoint joint, float minAngle, float maxAngle)
         {
             // Dla ConfigurableJoint limity są w Angular X/Y/Z Limit
             // Zakładamy że boom obraca się wokół Y (Angular Y Motion = Limited)
@@ -197,10 +198,6 @@ namespace Game.Scripts
                         
                         if (fokClothPhysics != null)
                             fokClothPhysics.enabled = true;
-                        
-                        // Reset kąta bomu
-                        currentFokBoomAngle = 0f;
-                        SetBoomTargetAngle(fokBoomJoint, currentFokBoomAngle);
                         break;
                 }
             }
@@ -263,49 +260,51 @@ namespace Game.Scripts
                     canAdjust = yachtState.SailState == YachtSailState.Grot_Only ||
                                 yachtState.SailState == YachtSailState.Grot_and_Fok;
                     targetJoint = grotBoomJoint;
+                        if (!canAdjust || targetJoint == null) break;
+                        // Pobierz aktualny kąt
+                        float currentAngle = selectedSail == SelectedSail.Grot ? currentGrotBoomAngle : currentFokBoomAngle;
+                        // Regulacja kąta bomu
+                        bool angleChanged = false;
+                        if (Input.GetKey(KeyCode.Q))
+                        {
+                            currentAngle -= sailStep * Time.deltaTime;
+                            angleChanged = true;
+                        }
+                        if (Input.GetKey(KeyCode.E))
+                        {
+                            currentAngle += sailStep * Time.deltaTime;
+                            angleChanged = true;
+                        }
+                        currentAngle = Mathf.Clamp(currentAngle, boomMinAngle, boomMaxAngle);
+                        if (selectedSail == SelectedSail.Grot) currentGrotBoomAngle = currentAngle;
+                        else currentFokBoomAngle = currentAngle;
+                        if (angleChanged) SetBoomTargetAngle(targetJoint, currentAngle);
                     break;
                     
                 case SelectedSail.Fok:
                     canAdjust = yachtState.SailState == YachtSailState.Fok_Only ||
                                 yachtState.SailState == YachtSailState.Grot_and_Fok;
-                    targetJoint = fokBoomJoint;
-                    break;
-            }
+                    if (Input.GetKey(KeyCode.Q))
+                    {
+                        t += Time.deltaTime * speed;
+                        angleChanged = true;
+                    }
+                    if (Input.GetKey(KeyCode.E))
+                    {
+                        t -= Time.deltaTime * speed;
+                        angleChanged = true;
+                    }
+                    if (FokShot.IsUnityNull() || points.Length == 0 || FokBone.IsUnityNull()) break;
+                    t = Mathf.Clamp(t, 0, points.Length - 1);
+                    int index = Mathf.FloorToInt(t);
+                    int next = Mathf.Clamp(index + 1, 0, points.Length - 1);
+                    float lerp = t - index;
+                    FokShot.position = Vector3.Lerp(points[index].position, points[next].position, lerp);
+                    FokShot.rotation = Quaternion.LookRotation(points[next].position - points[index].position);
 
-            if (!canAdjust || targetJoint == null)
-                return;
-
-            // Pobierz aktualny kąt
-            float currentAngle = selectedSail == SelectedSail.Grot ? currentGrotBoomAngle : currentFokBoomAngle;
-
-            // Regulacja kąta bomu
-            bool angleChanged = false;
-            
-            if (Input.GetKey(KeyCode.Q))
-            {
-                currentAngle -= sailStep * Time.deltaTime;
-                angleChanged = true;
-            }
-
-            if (Input.GetKey(KeyCode.E))
-            {
-                currentAngle += sailStep * Time.deltaTime;
-                angleChanged = true;
-            }
-
-            // Ogranicz do limitów jointa
-            currentAngle = Mathf.Clamp(currentAngle, boomMinAngle, boomMaxAngle);
-
-            // Zapisz nowy kąt
-            if (selectedSail == SelectedSail.Grot)
-                currentGrotBoomAngle = currentAngle;
-            else
-                currentFokBoomAngle = currentAngle;
-
-            // Aplikuj do jointa
-            if (angleChanged)
-            {
-                SetBoomTargetAngle(targetJoint, currentAngle);
+                    FokBone.position = FokShot.position;
+                    FokBone.rotation = FokShot.rotation;
+                break;
             }
         }
         
@@ -317,17 +316,7 @@ namespace Game.Scripts
             if (joint == null)
                 return;
             
-            // OPCJA 1: Użyj Target Rotation (wymaga XDrive/YZDrive)
-            // Quaternion targetRotation = Quaternion.Euler(0, angle, 0);
-            // joint.targetRotation = targetRotation;
-            
-            // OPCJA 2: Bezpośrednia rotacja (jeśli używasz FixedUpdate)
-            // Transform boomTransform = joint.transform;
-            // boomTransform.localRotation = Quaternion.Euler(0, angle, 0);
-            
-            // OPCJA 3: Dynamiczne limity (najprostsze dla ConfigurableJoint)
-            // Ograniczamy joint do konkretnego kąta przez zawężenie limitów
-            float tolerance = 1f; // Małe okno tolerancji
+            float tolerance = 3f;
             
             SoftJointLimit lowLimit = joint.lowAngularXLimit;
             lowLimit.limit = angle - tolerance;
@@ -336,36 +325,6 @@ namespace Game.Scripts
             SoftJointLimit highLimit = joint.highAngularXLimit;
             highLimit.limit = angle + tolerance;
             joint.highAngularXLimit = highLimit;
-            
-            // Debug
-            if (Input.GetKeyDown(KeyCode.Q) || Input.GetKeyDown(KeyCode.E))
-            {
-                Debug.Log($"[YachtController] Boom {selectedSail} angle set to: {angle:F1}°");
-            }
-        }
-        
-        /// <summary>
-        /// Alternatywna metoda: Bezpośrednia aplikacja siły obrotowej na boom
-        /// Użyj jeśli powyższa metoda nie działa dobrze
-        /// </summary>
-        private void ApplyBoomTorque(ConfigurableJoint joint, float targetAngle)
-        {
-            if (joint == null)
-                return;
-            
-            Rigidbody boomRb = joint.GetComponent<Rigidbody>();
-            if (boomRb == null)
-                return;
-            
-            // Oblicz różnicę między aktualnym a docelowym kątem
-            float currentAngle = joint.transform.localEulerAngles.y;
-            if (currentAngle > 180f) currentAngle -= 360f; // Normalizuj do -180..180
-            
-            float angleDifference = Mathf.DeltaAngle(currentAngle, targetAngle);
-            
-            // Aplikuj moment obrotowy proporcjonalny do różnicy
-            float torque = angleDifference * 10f; // Dostosuj współczynnik
-            boomRb.AddRelativeTorque(0, torque, 0, ForceMode.Force);
         }
         
         #endregion

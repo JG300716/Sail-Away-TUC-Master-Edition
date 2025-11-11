@@ -17,18 +17,6 @@ namespace Game.Scripts
         [SerializeField] private double dragCoeffHull = 0.009; // Współczynnik oporu kadłuba
         [SerializeField] private double maxSpeed = 15.0; // Maksymalna prędkość [m/s]
         
-        [Header("Heel (Przechył)")]
-        [SerializeField] private float heelAngle = 0f;
-        [SerializeField] private float maxHeelAngle = 35f;
-        [SerializeField] private float heelSpeed = 2f;
-        [SerializeField] private float heelDamping = 3f;
-        
-        [Header("Wave Motion")]
-        [SerializeField] private float pitchAmplitude = 2f;
-        [SerializeField] private float pitchFrequency = 0.5f;
-        [SerializeField] private float rollWaveAmplitude = 1f;
-        [SerializeField] private float rollWaveFrequency = 0.3f;
-        
         [Header("Boat Model")]
         [SerializeField] private Transform boatModel;
         
@@ -36,8 +24,6 @@ namespace Game.Scripts
         [SerializeField] private bool enableDebugLogs = false;
         
         private bool initialized = false;
-        private float waveTime = 0f;
-        private double lateralForce = 0.0;
         private Rigidbody rb;
 
         void Start()
@@ -55,14 +41,6 @@ namespace Game.Scripts
                 boatModel = transform;
             
             initialized = true;
-            
-            if (enableDebugLogs)
-            {
-                Debug.Log("[YachtPhysics] Zainicjalizowano:");
-                Debug.Log($"  Use Cloth Physics: {useClothPhysics}");
-                Debug.Log($"  Grot Cloth: {(grotCloth != null ? "✓" : "✗")}");
-                Debug.Log($"  Fok Cloth: {(fokCloth != null ? "✓" : "✗")}");
-            }
         }
 
         /// <summary>
@@ -99,8 +77,6 @@ namespace Game.Scripts
                     totalLateralForce += fokCloth.GetLateralForce();
                 }
                 
-                lateralForce = totalLateralForce;
-                
                 if (enableDebugLogs && Time.frameCount % 60 == 0)
                 {
                     Debug.Log($"[YachtPhysics] Cloth Forces:");
@@ -113,7 +89,6 @@ namespace Game.Scripts
                 // Fallback - jeśli Cloth wyłączony, brak siły
                 Debug.LogWarning("[YachtPhysics] Use Cloth Physics is disabled! No sail forces!");
                 totalDriveForce = 0.0;
-                lateralForce = 0.0;
             }
             
             // === OPÓR KADŁUBA ===
@@ -150,69 +125,6 @@ namespace Game.Scripts
             return acceleration;
         }
 
-        /// <summary>
-        /// Aktualizuje przechył i ruch na falach
-        /// </summary>
-        public void UpdateHeelAndMotion(float deltaTime, double boatSpeed)
-        {
-            if (boatModel == null)
-                return;
-            
-            // === PRZECHYŁ (HEEL) ===
-            float targetHeel = 0f;
-            
-            if (boatSpeed > 0.5)
-            {
-                // Przechył zależy od siły bocznej
-                double totalSailArea = 40.0; // Suma powierzchni żagli (dostosuj!)
-                
-                if (totalSailArea > 0)
-                {
-                    double heelFactor = (lateralForce / (boatSpeed * totalSailArea)) * 10.0;
-                    targetHeel = (float)Math.Clamp(heelFactor * maxHeelAngle, -maxHeelAngle, maxHeelAngle);
-                }
-            }
-            
-            // Płynne przejście do docelowego przechyłu
-            heelAngle = Mathf.Lerp(heelAngle, targetHeel, heelSpeed * deltaTime);
-            
-            // Tłumienie - powrót do poziomu
-            if (Mathf.Abs(targetHeel) < 0.1f)
-            {
-                heelAngle = Mathf.Lerp(heelAngle, 0f, heelDamping * deltaTime);
-            }
-            
-            // === FALOWANIE (PITCH & ROLL) ===
-            waveTime += deltaTime;
-            
-            float pitch = Mathf.Sin(waveTime * pitchFrequency * 2f * Mathf.PI) * pitchAmplitude;
-            float rollWave = Mathf.Sin(waveTime * rollWaveFrequency * 2f * Mathf.PI) * rollWaveAmplitude;
-            
-            // Amplituda zależna od prędkości
-            float speedFactor = Mathf.Clamp01((float)boatSpeed / 5f);
-            pitch *= speedFactor;
-            rollWave *= speedFactor;
-            
-            // Aplikuj rotację
-            boatModel.localRotation = Quaternion.Euler(pitch, 0f, heelAngle + rollWave);
-        }
-
-        /// <summary>
-        /// Zwraca aktualny kąt przechyłu
-        /// </summary>
-        public float GetHeelAngle()
-        {
-            return heelAngle;
-        }
-
-        /// <summary>
-        /// Zwraca aktualną siłę boczną
-        /// </summary>
-        public double GetLateralForce()
-        {
-            return lateralForce;
-        }
-
         void OnDrawGizmos()
         {
             if (!Application.isPlaying || !initialized)
@@ -241,8 +153,6 @@ namespace Game.Scripts
             Debug.Log($"Use Cloth Physics: {useClothPhysics}");
             Debug.Log($"Boat Mass: {boatMass} kg");
             Debug.Log($"Max Speed: {maxSpeed} m/s");
-            Debug.Log($"Heel Angle: {heelAngle:F2}°");
-            Debug.Log($"Lateral Force: {lateralForce:F2}N");
             
             if (rb != null)
             {
