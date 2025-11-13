@@ -370,7 +370,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   yachtState: {fileID: 0}
-  windManager: {fileID: 0}
   yachtPhysics: {fileID: 0}
   compassCircle: {fileID: 1017670931033708375}
   windIndicator: {fileID: 7943123483681784468}
