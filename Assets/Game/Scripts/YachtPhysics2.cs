@@ -235,7 +235,7 @@ namespace Game.Scripts
                 return;
             }
             
-            // 1. Oblicz normalną
+            // 1. Oblicz normalną żagla
             Vector3 rawNormal;
             if (sail.sailType == SailType.Mainsail)
             {
@@ -246,24 +246,25 @@ namespace Game.Scripts
                 rawNormal = CalculateJibNormalRaw(sail);
             }
             
-            // WYGŁADZANIE normalnej (Lerp dla stabilności)
+            // Wygładzanie normalnej
             if (sail.smoothedSailNormal == Vector3.zero)
             {
-                sail.smoothedSailNormal = rawNormal; // Pierwsza klatka
+                sail.smoothedSailNormal = rawNormal;
             }
             else
             {
-                sail.smoothedSailNormal = Vector3.Lerp(sail.smoothedSailNormal, rawNormal, 0.1f); // 10% blend
+                sail.smoothedSailNormal = Vector3.Lerp(sail.smoothedSailNormal, rawNormal, 0.1f);
                 sail.smoothedSailNormal.Normalize();
             }
             
             sail.sailNormal = sail.smoothedSailNormal;
             
-            // 2. Apparent wind
+            // 2. APPARENT WIND (jak na diagramie)
+            // Apparent Wind = True Wind - Boat Velocity
             Vector3 boatVel = new Vector3(yachtRigidbody.linearVelocity.x, 0, yachtRigidbody.linearVelocity.z);
             sail.apparentWind = currentWindVelocity - boatVel;
             
-            // 3. Angle of attack
+            // 3. ANGLE OF ATTACK (kąt między sail normal a apparent wind)
             Vector3 windXZ = new Vector3(sail.apparentWind.x, 0, sail.apparentWind.z);
             Vector3 normalXZ = new Vector3(sail.sailNormal.x, 0, sail.sailNormal.z);
             
@@ -274,9 +275,25 @@ namespace Game.Scripts
                 return;
             }
             
-            float rawAngle = Vector3.SignedAngle(normalXZ, windXZ, Vector3.up);
+            // Kąt między normalną a wiatrem (0-180°)
+            float angleToWind = Vector3.Angle(normalXZ, windXZ);
             
-            // WYGŁADZANIE kąta (unikaj skoków ±180°)
+            // ZGODNIE Z DIAGRAMEM:
+            // - 0° = wiatr "w twarz" żagla (flaga)
+            // - 90° = wiatr prostopadły (max siła)
+            // - 180° = wiatr od tyłu (pusty żagiel)
+            
+            // AoA powinno być kątem od optymalnego (90°)
+            float rawAngle = angleToWind - 90f; // -90 do +90
+            
+            // Określ znak (która strona żagla)
+            Vector3 cross = Vector3.Cross(normalXZ, windXZ);
+            if (cross.y < 0)
+            {
+                rawAngle = -rawAngle;
+            }
+            
+            // Wygładzanie
             if (sail.smoothedAngleOfAttack == 0f)
             {
                 sail.smoothedAngleOfAttack = rawAngle;
@@ -284,17 +301,35 @@ namespace Game.Scripts
             else
             {
                 float angleDiff = Mathf.DeltaAngle(sail.smoothedAngleOfAttack, rawAngle);
-                sail.smoothedAngleOfAttack += angleDiff * 0.2f; // 20% blend
+                sail.smoothedAngleOfAttack += angleDiff * 0.2f;
             }
             
             sail.angleOfAttack = sail.smoothedAngleOfAttack;
             
-            // 4. Effective area
-            float absAngle = Mathf.Abs(sail.angleOfAttack);
-            float effectiveness = absAngle < 15f ? 0.2f :
-                                 absAngle < 45f ? Mathf.Lerp(0.2f, 1.0f, (absAngle - 15f) / 30f) :
-                                 absAngle < 90f ? 1.0f :
-                                 Mathf.Lerp(1.0f, 0.3f, (absAngle - 90f) / 90f);
+            // 4. Effective area (zgodnie z diagramem - max przy ~90°)
+            float absAngle = Mathf.Abs(angleToWind); // Użyj angleToWind, nie AoA!
+            
+            float effectiveness;
+            if (absAngle < 30f) // Flaga
+            {
+                effectiveness = 0.1f;
+            }
+            else if (absAngle < 60f) // Wzrost
+            {
+                effectiveness = Mathf.Lerp(0.1f, 0.8f, (absAngle - 30f) / 30f);
+            }
+            else if (absAngle < 120f) // Optimum
+            {
+                effectiveness = 1.0f;
+            }
+            else if (absAngle < 150f) // Spadek
+            {
+                effectiveness = Mathf.Lerp(1.0f, 0.3f, (absAngle - 120f) / 30f);
+            }
+            else // Fordewind
+            {
+                effectiveness = 0.3f;
+            }
             
             sail.effectiveSailArea = sail.sailArea * effectiveness;
             
@@ -343,35 +378,45 @@ namespace Game.Scripts
                 sail.totalForce = Vector3.zero;
                 return;
             }
-    
+            
             Vector3 windDir = sail.apparentWind.normalized;
-    
-            float absAngle = Mathf.Abs(sail.angleOfAttack);
-            float Cl = absAngle < 20f ? Mathf.Lerp(0f, 1.5f, absAngle / 20f) :
-                absAngle < 40f ? 1.5f :
-                absAngle < 90f ? Mathf.Lerp(1.5f, 0.7f, (absAngle - 40f) / 50f) : 0.5f;
-    
-            float q = 0.5f * 1.225f * windSpeed * windSpeed / massScale;
-    
-            Vector3 liftDir = Vector3.Cross( windDir, Vector3.up).normalized;
-            Vector3 lift = liftDir * Cl * q * sail.effectiveSailArea * sailEfficiency;
-    
-            Vector3 drag = windDir * dragCoefficient * q * sail.effectiveSailArea;
-    
+            
+            Vector3 forceDir = Vector3.Cross(sail.sailNormal, Vector3.up).normalized;
+            
+            float dotWithForward = Vector3.Dot(forceDir, CorrectedForward);
+            
+            if (dotWithForward < 0)
+            {
+                forceDir = -forceDir; // Odwróć jeśli pcha do tyłu
+            }
+            float dynamicPressure = 0.5f * 1.225f * windSpeed * windSpeed / massScale;
+            
+            // Lift coefficient (uproszczony - zależy od AoA)
+            float absAoA = Mathf.Abs(sail.angleOfAttack);
+            float Cl = absAoA < 15f ? Mathf.Lerp(0f, 1.2f, absAoA / 15f) :
+                       absAoA < 30f ? 1.2f :
+                       absAoA < 60f ? Mathf.Lerp(1.2f, 0.6f, (absAoA - 30f) / 30f) : 0.4f;
+            
+            // 4. Total force
+            Vector3 lift = forceDir * Cl * dynamicPressure * sail.effectiveSailArea * sailEfficiency;
+            
+            // Drag (w kierunku wiatru, ale mały)
+            Vector3 drag = windDir * dragCoefficient * dynamicPressure * sail.effectiveSailArea;
+            
             sail.totalForce = lift + drag;
             sail.totalForce.y = 0;
-    
-            // DEBUG
-            Debug.Log($"  Wind Dir: {windDir:F2}");
-            Debug.Log($"  Lift Dir: {liftDir:F2}");
-            Debug.Log($"  Lift Force: {lift:F4}");
-            Debug.Log($"  Drag Force: {drag:F4}");
-            Debug.Log($"  Total (before limit): {sail.totalForce:F4}");
-    
+            
+            // Debug
+            Debug.Log($"  Apparent Wind: {sail.apparentWind:F2} ({windSpeed:F1} m/s)");
+            Debug.Log($"  Angle to Wind: {Vector3.Angle(sail.sailNormal, windDir):F1}°");
+            Debug.Log($"  AoA: {sail.angleOfAttack:F1}°");
+            Debug.Log($"  Force Dir: {forceDir:F2}");
+            Debug.Log($"  Dot Forward: {dotWithForward:F2}");
+            Debug.Log($"  Lift: {lift:F4}");
+            Debug.Log($"  Total: {sail.totalForce:F4}");
+            
             if (sail.totalForce.magnitude > maxForcePerSail)
                 sail.totalForce = sail.totalForce.normalized * maxForcePerSail;
-    
-            Debug.Log($"  Total (after limit): {sail.totalForce:F4}");
         }
 
         private void ApplySailForces()
