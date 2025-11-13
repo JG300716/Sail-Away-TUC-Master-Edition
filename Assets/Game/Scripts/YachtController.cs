@@ -90,7 +90,7 @@ namespace Game.Scripts
             HandleCameraSwap();
             
             // Debug: Wiatr
-            if (Wind != null)
+            if (!Wind .IsUnityNull())
             {
                 var windDir = Quaternion.Euler(0, (float)Wind.WindDegree, 0) * Vector3.forward;
                 Debug.DrawLine(transform.position, transform.position + windDir * 5f, Color.cyan);
@@ -166,25 +166,20 @@ namespace Game.Scripts
 
         private void ApplyPhysicsSteering()
         {
-            if (yachtRigidbody == null) return;
+            if (yachtRigidbody .IsUnityNull()) return;
     
             Vector3 velocity = yachtRigidbody.linearVelocity;
             Vector3 velocityXZ = new Vector3(velocity.x, 0, velocity.z);
             float forwardSpeed = velocityXZ.magnitude;
+
+            float speedFactor = Mathf.Max(forwardSpeed / 3f, 0.5f); // Min 50% mocy
+            float torqueMagnitude = rudderAngle * rudderTorque * speedFactor * 10f; // x10 multiplier!
     
-            // DEBUG
-            Debug.Log($"[Steering] Speed: {forwardSpeed:F2} | Rudder Angle: {rudderAngle:F1}° | Rudder Torque: {rudderTorque}");
-    
-            float speedFactor = Mathf.Min(forwardSpeed / 3f, 1f);
-            float torqueMagnitude = rudderAngle * rudderTorque * speedFactor * 0.1f;
-    
-            Vector3 torque = Vector3.up * torqueMagnitude * Mathf.Deg2Rad;
-    
-            Debug.Log($"[Steering] Applying Torque: {torque} (magnitude: {torque.magnitude:F4})");
-    
+            Vector3 torque = Vector3.up * torqueMagnitude; // USUŃ Mathf.Deg2Rad!
+            
             yachtRigidbody.AddTorque(torque, ForceMode.Force);
     
-            if (yachtState != null)
+            if (!yachtState .IsUnityNull())
             {
                 yachtState.Deg_from_north = transform.eulerAngles.y;
             }
@@ -203,10 +198,10 @@ namespace Game.Scripts
                     case YachtSailState.No_Sail:
                         yachtState.SailState = YachtSailState.Grot_Only;
                         
-                        if (grotClothObject != null)
+                        if (!grotClothObject .IsUnityNull())
                             grotClothObject.SetActive(true);
                         
-                        if (grotClothPhysics != null)
+                        if (!grotClothPhysics .IsUnityNull())
                             grotClothPhysics.enabled = true;
                         
                         currentGrotBoomAngle = 0f;
@@ -216,10 +211,10 @@ namespace Game.Scripts
                     case YachtSailState.Grot_Only:
                         yachtState.SailState = YachtSailState.Grot_and_Fok;
                         
-                        if (fokClothObject != null)
+                        if (!fokClothObject .IsUnityNull())
                             fokClothObject.SetActive(true);
                         
-                        if (fokClothPhysics != null)
+                        if (!fokClothPhysics .IsUnityNull())
                             fokClothPhysics.enabled = true;
                         break;
                 }
@@ -232,20 +227,20 @@ namespace Game.Scripts
                     case YachtSailState.Grot_Only:
                         yachtState.SailState = YachtSailState.No_Sail;
                         
-                        if (grotClothObject != null)
+                        if (!grotClothObject .IsUnityNull())
                             grotClothObject.SetActive(false);
                         
-                        if (grotClothPhysics != null)
+                        if (!grotClothPhysics .IsUnityNull())
                             grotClothPhysics.enabled = false;
                         break;
                     
                     case YachtSailState.Grot_and_Fok:
                         yachtState.SailState = YachtSailState.Grot_Only;
                         
-                        if (fokClothObject != null)
+                        if (!fokClothObject .IsUnityNull())
                             fokClothObject.SetActive(false);
                         
-                        if (fokClothPhysics != null)
+                        if (!fokClothPhysics .IsUnityNull())
                             fokClothPhysics.enabled = false;
                         break;
                 }
@@ -279,7 +274,7 @@ namespace Game.Scripts
                                 yachtState.SailState == YachtSailState.Grot_and_Fok;
                     targetJoint = grotBoomJoint;
                     
-                    if (!canAdjust || targetJoint == null) break;
+                    if (!canAdjust || targetJoint .IsUnityNull()) break;
                     
                     float currentAngle = currentGrotBoomAngle;
                     
@@ -338,7 +333,7 @@ namespace Game.Scripts
         
         private void SetBoomTargetAngle(ConfigurableJoint joint, float angle)
         {
-            if (joint == null) return;
+            if (joint.IsUnityNull()) return;
             
             float tolerance = 3f;
             

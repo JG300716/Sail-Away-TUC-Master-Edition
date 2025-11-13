@@ -61,7 +61,7 @@ namespace Game.Scripts
         private void UpdateWindIndicator()
         {
             // Oblicz względny kąt wiatru (od 0° do 360°)
-            double relativeWindAngle = (Wind.WindDegree - yachtState.Deg_from_north + 360.0) % 360.0;
+            double relativeWindAngle = (Wind.WindDegree - yachtState.Deg_from_north + 270.0) % 360.0;
 
             // Pozycja ikony wiatru na okręgu
             if (!windIndicator.IsUnityNull())
