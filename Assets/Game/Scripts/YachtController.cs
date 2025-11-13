@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections;
+using System.Linq;
 using Unity.VisualScripting;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.Splines;
 
@@ -35,6 +37,8 @@ namespace Game.Scripts
         [Header("Cloth Sails")]
         [SerializeField] private GameObject grotClothObject;
         [SerializeField] private GameObject fokClothObject;
+        [SerializeField] private SkinnedMeshRenderer grotSkinnedMeshRenderer;
+        [SerializeField] private SkinnedMeshRenderer fokSkinnedMeshRenderer;
         [SerializeField] private SailClothPhysics grotClothPhysics;
         [SerializeField] private SailClothPhysics fokClothPhysics;
         
@@ -54,6 +58,9 @@ namespace Game.Scripts
         private float currentGrotBoomAngle = 0f;
         private float currentFokBoomAngle = 0f;
         
+        [Header("Chest Opening")]
+        [SerializeField] ChestOpening ChestOpening;
+        private bool isRunningChestCoroutine = false;
         private WindManager Wind => WindManager.Instance;
         
         void Start()
@@ -101,14 +108,27 @@ namespace Game.Scripts
         {
             if (Input.GetKeyDown(KeyCode.F1))
             {
-                Time.timeScale = 0f;
-                //Physics.autoSimulation = false;
-
-                                
-                
-                Time.timeScale = 1f;
-                //Physics.autoSimulation = true;
+                if (isRunningChestCoroutine) return;
+                StartCoroutine(HandleChestOpeningCoroutine());
             }
+        }
+        
+        IEnumerator HandleChestOpeningCoroutine()
+        {
+            Time.timeScale = 0f;
+
+            if (ChestOpening.IsUnityNull()) yield break;
+            isRunningChestCoroutine = true;
+            yield return StartCoroutine(ChestOpening.StartRolling());
+
+            Material material = ChestOpening.GetLastWinnerImageName();
+            if (!material.IsUnityNull() && !grotSkinnedMeshRenderer.IsUnityNull() && !fokSkinnedMeshRenderer.IsUnityNull())
+            {
+                grotSkinnedMeshRenderer.material = material;
+                fokSkinnedMeshRenderer.material = material;
+            }
+            isRunningChestCoroutine = false;
+            Time.timeScale = 1f;
         }
         
         void FixedUpdate()

@@ -143,8 +143,8 @@ namespace Game.Scripts
                 if (!sail.isActive) continue;
                 CalculateSailParameters(sail);
                 
-                if (showDetailedDebug)
-                    DebugSailCalculations(sail);
+                // if (showDetailedDebug)
+                //     DebugSailCalculations(sail);
             }
             
             ApplySailForces();
@@ -153,7 +153,7 @@ namespace Game.Scripts
 
         void Update()
         {
-            if (showDebugVectors) DrawDebugVectors();
+            //if (showDebugVectors) DrawDebugVectors();
         }
 
         #region VALIDATION & SAFETY
@@ -459,172 +459,172 @@ namespace Game.Scripts
 
         #endregion
 
-        #region DEBUG
-
-        private void DebugSailCalculations(SailConfig sail)
-        {
-            Debug.Log($"===== {sail.sailName} ({sail.sailType}) =====");
-            Debug.Log($"  Yacht Forward (original): {transform.forward:F2}");
-            Debug.Log($"  Yacht Forward (corrected): {CorrectedForward:F2}");
-            
-            if (sail.sailType == SailType.Mainsail)
-            {
-                Debug.Log($"  Boom Euler Y: {sail.boomOrShotTransform.eulerAngles.y:F1}°");
-                Debug.Log($"  Boom Right: {sail.boomOrShotTransform.right:F2}");
-            }
-            else // Jib
-            {
-                if (sail.fokTackTransform != null)
-                {
-                    Vector3 luffDir = (sail.boomOrShotTransform.position - sail.fokTackTransform.position).normalized;
-                    Debug.Log($"  Shot Pos: {sail.boomOrShotTransform.position:F1}");
-                    Debug.Log($"  Tack Pos: {sail.fokTackTransform.position:F1}");
-                    Debug.Log($"  Luff Direction: {luffDir:F2}");
-                }
-            }
-            
-            Debug.Log($"  Sail Normal: {sail.sailNormal:F2}");
-            Debug.Log($"  Wind: {currentWindVelocity:F2} (mag: {currentWindVelocity.magnitude:F1})");
-            Debug.Log($"  Apparent Wind: {sail.apparentWind:F2} (mag: {sail.apparentWind.magnitude:F1})");
-            Debug.Log($"  AoA: {sail.angleOfAttack:F1}°");
-            Debug.Log($"  Effective Area: {sail.effectiveSailArea:F1} m²");
-            Debug.Log($"  Total Force: {sail.totalForce:F4} (mag: {sail.totalForce.magnitude:F4})");
-            Debug.Log($"  After x{forceMultiplier}: {(sail.totalForce * forceMultiplier).magnitude:F2}");
-            Debug.Log($"========================");
-        }
-
-        private void DrawDebugVectors()
-        {
-            if (!Application.isPlaying) return;
-            
-            Vector3 basePos = transform.position;
-            
-            // Wiatr (cyan, wysoko)
-            Debug.DrawRay(basePos + Vector3.up * 8f, currentWindVelocity, Color.cyan);
-            
-            // Dzioб jachtu - ORYGINAŁ (czerwony)
-            Debug.DrawRay(basePos, transform.forward * 5f, Color.red);
-            
-            // Dzioб jachtu - POPRAWIONY (biały, grubszy)
-            Debug.DrawRay(basePos, CorrectedForward * 6f, Color.white);
-            Debug.DrawRay(basePos + Vector3.up * 0.1f, CorrectedForward * 6f, Color.white);
-            
-            // Right - POPRAWIONY (szary)
-            Debug.DrawRay(basePos, CorrectedRight * 4f, Color.gray);
-            
-            // Prędkość (magenta)
-            Debug.DrawRay(basePos + Vector3.up * 3f, yachtRigidbody.linearVelocity * 2f, Color.magenta);
-            
-            foreach (var sail in sails)
-            {
-                if (!sail.isActive || sail.boomOrShotTransform == null) continue;
-                
-                Vector3 origin = basePos + Vector3.up * 2f;
-                
-                if (sail.sailType == SailType.Mainsail)
-                {
-                    // Boom osie
-                    Transform boom = sail.boomOrShotTransform;
-                    Debug.DrawRay(boom.position, boom.right * 3f, new Color(1f, 0.5f, 0.5f)); // Jasnoczerowny
-                    Debug.DrawRay(boom.position, boom.up * 2f, new Color(0.5f, 1f, 0.5f)); // Jasnozielony
-                }
-                else // Jib
-                {
-                    // Luff edge
-                    if (sail.fokTackTransform != null)
-                    {
-                        Debug.DrawLine(sail.fokTackTransform.position, sail.boomOrShotTransform.position, new Color(0.5f, 1f, 0.5f));
-                    }
-                }
-                
-                // Sail normal (ŻÓŁTY - najważniejszy!)
-                Debug.DrawRay(origin, sail.sailNormal * vectorScale, Color.yellow);
-                
-                // Apparent wind (jasnoniebieski)
-                Debug.DrawRay(origin, sail.apparentWind.normalized * vectorScale, new Color(0, 0.7f, 1f));
-                
-                // Total force (ZIELONY - GRUBA strzałka!)
-                if (sail.totalForce.magnitude > 0.001f)
-                {
-                    Vector3 forceVec = sail.totalForce * vectorScale * 50f;
-                    Debug.DrawRay(origin, forceVec, Color.green);
-                    Debug.DrawRay(origin + Vector3.right * 0.1f, forceVec, Color.green);
-                    Debug.DrawRay(origin + Vector3.forward * 0.1f, forceVec, Color.green);
-                }
-            }
-        }
-
-        void OnGUI()
-        {
-            if (!showDebugUI || !Application.isPlaying) return;
-            
-            int y = 140;
-            GUI.Box(new Rect(10, y, 550, 360), "Sail Physics - Forward Corrected");
-            y += 25;
-            
-            if (explosionDetected)
-            {
-                GUI.color = Color.red;
-                GUI.Label(new Rect(20, y, 530, 20), "!!! EKSPLOZJA !!!");
-                GUI.color = Color.white;
-                y += 25;
-            }
-            
-            GUI.Label(new Rect(20, y, 530, 20), $"Forward Offset: {forwardRotationOffset}°");
-            y += 20;
-            
-            GUI.Label(new Rect(20, y, 530, 20), $"Original Forward: {transform.forward:F2}");
-            y += 20;
-            
-            GUI.color = Color.green;
-            GUI.Label(new Rect(20, y, 530, 20), $"Corrected Forward: {CorrectedForward:F2}");
-            GUI.color = Color.white;
-            y += 25;
-            
-            GUI.Label(new Rect(20, y, 530, 20), $"Vel: {yachtRigidbody.linearVelocity.magnitude:F2} m/s ({yachtRigidbody.linearVelocity.magnitude * 1.94f:F1} kn)");
-            y += 20;
-            
-            float realForce = totalAppliedForce.magnitude * massScale;
-            GUI.Label(new Rect(20, y, 530, 20), $"Force: {totalAppliedForce.magnitude:F2} U = {realForce:F0} N");
-            y += 20;
-            
-            GUI.Label(new Rect(20, y, 530, 20), $"Wind: {Wind.WindSpeed:F1} m/s @ {Wind.WindDegree:F0}°");
-            y += 25;
-            
-            foreach (var sail in sails)
-            {
-                if (!sail.isActive) continue;
-                
-                GUI.Label(new Rect(20, y, 530, 20), $"{sail.sailName} ({sail.sailType}):");
-                y += 20;
-                
-                if (sail.boomOrShotTransform != null)
-                {
-                    if (sail.sailType == SailType.Mainsail)
-                    {
-                        GUI.Label(new Rect(30, y, 520, 20), $"Boom Y: {sail.boomOrShotTransform.eulerAngles.y:F1}°");
-                    }
-                    else
-                    {
-                        GUI.Label(new Rect(30, y, 520, 20), $"Shot: {sail.boomOrShotTransform.position:F1}");
-                    }
-                    y += 20;
-                }
-                
-                GUI.Label(new Rect(30, y, 520, 20), $"Normal: {sail.sailNormal:F2}");
-                y += 20;
-                
-                GUI.Label(new Rect(30, y, 520, 20), $"AoA: {sail.angleOfAttack:F0}° | Area: {sail.effectiveSailArea:F1}m²");
-                y += 20;
-                
-                float forceWithMult = sail.totalForce.magnitude * forceMultiplier;
-                GUI.color = forceWithMult > 1f ? Color.green : (forceWithMult > 0.1f ? Color.yellow : Color.red);
-                GUI.Label(new Rect(30, y, 520, 20), $"Force: {sail.totalForce.magnitude:F3} → x{forceMultiplier} = {forceWithMult:F2}");
-                GUI.color = Color.white;
-                y += 25;
-            }
-        }
-
-        #endregion
+        // #region DEBUG
+        //
+        // private void DebugSailCalculations(SailConfig sail)
+        // {
+        //     Debug.Log($"===== {sail.sailName} ({sail.sailType}) =====");
+        //     Debug.Log($"  Yacht Forward (original): {transform.forward:F2}");
+        //     Debug.Log($"  Yacht Forward (corrected): {CorrectedForward:F2}");
+        //     
+        //     if (sail.sailType == SailType.Mainsail)
+        //     {
+        //         Debug.Log($"  Boom Euler Y: {sail.boomOrShotTransform.eulerAngles.y:F1}°");
+        //         Debug.Log($"  Boom Right: {sail.boomOrShotTransform.right:F2}");
+        //     }
+        //     else // Jib
+        //     {
+        //         if (sail.fokTackTransform != null)
+        //         {
+        //             Vector3 luffDir = (sail.boomOrShotTransform.position - sail.fokTackTransform.position).normalized;
+        //             Debug.Log($"  Shot Pos: {sail.boomOrShotTransform.position:F1}");
+        //             Debug.Log($"  Tack Pos: {sail.fokTackTransform.position:F1}");
+        //             Debug.Log($"  Luff Direction: {luffDir:F2}");
+        //         }
+        //     }
+        //     
+        //     Debug.Log($"  Sail Normal: {sail.sailNormal:F2}");
+        //     Debug.Log($"  Wind: {currentWindVelocity:F2} (mag: {currentWindVelocity.magnitude:F1})");
+        //     Debug.Log($"  Apparent Wind: {sail.apparentWind:F2} (mag: {sail.apparentWind.magnitude:F1})");
+        //     Debug.Log($"  AoA: {sail.angleOfAttack:F1}°");
+        //     Debug.Log($"  Effective Area: {sail.effectiveSailArea:F1} m²");
+        //     Debug.Log($"  Total Force: {sail.totalForce:F4} (mag: {sail.totalForce.magnitude:F4})");
+        //     Debug.Log($"  After x{forceMultiplier}: {(sail.totalForce * forceMultiplier).magnitude:F2}");
+        //     Debug.Log($"========================");
+        // }
+        //
+        // private void DrawDebugVectors()
+        // {
+        //     if (!Application.isPlaying) return;
+        //     
+        //     Vector3 basePos = transform.position;
+        //     
+        //     // Wiatr (cyan, wysoko)
+        //     Debug.DrawRay(basePos + Vector3.up * 8f, currentWindVelocity, Color.cyan);
+        //     
+        //     // Dzioб jachtu - ORYGINAŁ (czerwony)
+        //     Debug.DrawRay(basePos, transform.forward * 5f, Color.red);
+        //     
+        //     // Dzioб jachtu - POPRAWIONY (biały, grubszy)
+        //     Debug.DrawRay(basePos, CorrectedForward * 6f, Color.white);
+        //     Debug.DrawRay(basePos + Vector3.up * 0.1f, CorrectedForward * 6f, Color.white);
+        //     
+        //     // Right - POPRAWIONY (szary)
+        //     Debug.DrawRay(basePos, CorrectedRight * 4f, Color.gray);
+        //     
+        //     // Prędkość (magenta)
+        //     Debug.DrawRay(basePos + Vector3.up * 3f, yachtRigidbody.linearVelocity * 2f, Color.magenta);
+        //     
+        //     foreach (var sail in sails)
+        //     {
+        //         if (!sail.isActive || sail.boomOrShotTransform == null) continue;
+        //         
+        //         Vector3 origin = basePos + Vector3.up * 2f;
+        //         
+        //         if (sail.sailType == SailType.Mainsail)
+        //         {
+        //             // Boom osie
+        //             Transform boom = sail.boomOrShotTransform;
+        //             Debug.DrawRay(boom.position, boom.right * 3f, new Color(1f, 0.5f, 0.5f)); // Jasnoczerowny
+        //             Debug.DrawRay(boom.position, boom.up * 2f, new Color(0.5f, 1f, 0.5f)); // Jasnozielony
+        //         }
+        //         else // Jib
+        //         {
+        //             // Luff edge
+        //             if (sail.fokTackTransform != null)
+        //             {
+        //                 Debug.DrawLine(sail.fokTackTransform.position, sail.boomOrShotTransform.position, new Color(0.5f, 1f, 0.5f));
+        //             }
+        //         }
+        //         
+        //         // Sail normal (ŻÓŁTY - najważniejszy!)
+        //         Debug.DrawRay(origin, sail.sailNormal * vectorScale, Color.yellow);
+        //         
+        //         // Apparent wind (jasnoniebieski)
+        //         Debug.DrawRay(origin, sail.apparentWind.normalized * vectorScale, new Color(0, 0.7f, 1f));
+        //         
+        //         // Total force (ZIELONY - GRUBA strzałka!)
+        //         if (sail.totalForce.magnitude > 0.001f)
+        //         {
+        //             Vector3 forceVec = sail.totalForce * vectorScale * 50f;
+        //             Debug.DrawRay(origin, forceVec, Color.green);
+        //             Debug.DrawRay(origin + Vector3.right * 0.1f, forceVec, Color.green);
+        //             Debug.DrawRay(origin + Vector3.forward * 0.1f, forceVec, Color.green);
+        //         }
+        //     }
+        // }
+        //
+        // void OnGUI()
+        // {
+        //     if (!showDebugUI || !Application.isPlaying) return;
+        //     
+        //     int y = 140;
+        //     GUI.Box(new Rect(10, y, 550, 360), "Sail Physics - Forward Corrected");
+        //     y += 25;
+        //     
+        //     if (explosionDetected)
+        //     {
+        //         GUI.color = Color.red;
+        //         GUI.Label(new Rect(20, y, 530, 20), "!!! EKSPLOZJA !!!");
+        //         GUI.color = Color.white;
+        //         y += 25;
+        //     }
+        //     
+        //     GUI.Label(new Rect(20, y, 530, 20), $"Forward Offset: {forwardRotationOffset}°");
+        //     y += 20;
+        //     
+        //     GUI.Label(new Rect(20, y, 530, 20), $"Original Forward: {transform.forward:F2}");
+        //     y += 20;
+        //     
+        //     GUI.color = Color.green;
+        //     GUI.Label(new Rect(20, y, 530, 20), $"Corrected Forward: {CorrectedForward:F2}");
+        //     GUI.color = Color.white;
+        //     y += 25;
+        //     
+        //     GUI.Label(new Rect(20, y, 530, 20), $"Vel: {yachtRigidbody.linearVelocity.magnitude:F2} m/s ({yachtRigidbody.linearVelocity.magnitude * 1.94f:F1} kn)");
+        //     y += 20;
+        //     
+        //     float realForce = totalAppliedForce.magnitude * massScale;
+        //     GUI.Label(new Rect(20, y, 530, 20), $"Force: {totalAppliedForce.magnitude:F2} U = {realForce:F0} N");
+        //     y += 20;
+        //     
+        //     GUI.Label(new Rect(20, y, 530, 20), $"Wind: {Wind.WindSpeed:F1} m/s @ {Wind.WindDegree:F0}°");
+        //     y += 25;
+        //     
+        //     foreach (var sail in sails)
+        //     {
+        //         if (!sail.isActive) continue;
+        //         
+        //         GUI.Label(new Rect(20, y, 530, 20), $"{sail.sailName} ({sail.sailType}):");
+        //         y += 20;
+        //         
+        //         if (sail.boomOrShotTransform != null)
+        //         {
+        //             if (sail.sailType == SailType.Mainsail)
+        //             {
+        //                 GUI.Label(new Rect(30, y, 520, 20), $"Boom Y: {sail.boomOrShotTransform.eulerAngles.y:F1}°");
+        //             }
+        //             else
+        //             {
+        //                 GUI.Label(new Rect(30, y, 520, 20), $"Shot: {sail.boomOrShotTransform.position:F1}");
+        //             }
+        //             y += 20;
+        //         }
+        //         
+        //         GUI.Label(new Rect(30, y, 520, 20), $"Normal: {sail.sailNormal:F2}");
+        //         y += 20;
+        //         
+        //         GUI.Label(new Rect(30, y, 520, 20), $"AoA: {sail.angleOfAttack:F0}° | Area: {sail.effectiveSailArea:F1}m²");
+        //         y += 20;
+        //         
+        //         float forceWithMult = sail.totalForce.magnitude * forceMultiplier;
+        //         GUI.color = forceWithMult > 1f ? Color.green : (forceWithMult > 0.1f ? Color.yellow : Color.red);
+        //         GUI.Label(new Rect(30, y, 520, 20), $"Force: {sail.totalForce.magnitude:F3} → x{forceMultiplier} = {forceWithMult:F2}");
+        //         GUI.color = Color.white;
+        //         y += 25;
+        //     }
+        // }
+        //
+        // #endregion
     }
 }

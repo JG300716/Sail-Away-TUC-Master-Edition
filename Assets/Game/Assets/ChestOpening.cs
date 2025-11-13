@@ -11,6 +11,8 @@ public class ChestOpening : MonoBehaviour
     public float spacing = 110f;         // 100 szerokość skina + 10 odstęp
     public Image centerMarker;           // Pionowa kreska
 
+    [SerializeField] List<Material> skinMaterials;
+    
     [Header("Rolling Settings")]
     public float startSpeed = 2000f;     // Początkowa prędkość przesuwania
     public float slowDownDuration = 3f;  // Czas spowolnienia
@@ -46,7 +48,7 @@ public class ChestOpening : MonoBehaviour
 
         while (elapsed < stopTime)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
 
             // Spowolnienie ease-out
             float t = Mathf.Clamp01(elapsed / stopTime);
@@ -56,7 +58,7 @@ public class ChestOpening : MonoBehaviour
             for (int i = 0; i < skins.Count; i++)
             {
                 Vector2 pos = skins[i].anchoredPosition;
-                pos.x -= currentSpeed * Time.deltaTime;
+                pos.x -= currentSpeed * Time.unscaledDeltaTime;
 
                 // Zawijanie: jeśli skin wyszedł poza lewą krawędź
                 float totalWidth = spacing * skins.Count;
@@ -79,7 +81,7 @@ public class ChestOpening : MonoBehaviour
         // Teraz winner jest dokładnie pod środkiem
         Debug.Log("🎁 Wylosowany skin: " + winner.name);
 
-        yield return new WaitForSeconds(hideDelay);
+        yield return new WaitForSecondsRealtime(hideDelay);
         gameObject.SetActive(false);
     }
 
@@ -120,36 +122,32 @@ public class ChestOpening : MonoBehaviour
         return winner;
     }
 
-    public void StartRolling()
+    public IEnumerator StartRolling()
     {
         gameObject.SetActive(true);
-        StartCoroutine(RollSkins());
+        yield return StartCoroutine(RollSkins());
     }
 
-    public string GetLastWinnerImageName()
+    public Material GetLastWinnerImageName()
     {
-        if (lastWinner.name.Contains("Carpet"))
+        if (skinMaterials.Count == 0 || lastWinner == null) return null;
+        if (lastWinner.name.Contains("Carpet")) return skinMaterials[0];
+        else if (lastWinner.name.Contains("Ladybug")) return skinMaterials[3];
+        else if (lastWinner.name.Contains("Shrek"))
         {
-            return "Carpet";
-        }
-        else if (lastWinner.name.Contains("Ladybug"))
-        {
-            return "Ladybug"
-        } else if (lastWinner.name.Contains("Shrek"))
-        {
-            return "Shrek";
+            return skinMaterials[4];
         } else if (lastWinner.name.Contains("Galaxy"))
         {
-            return "Galaxy";
+            return skinMaterials[2];
         } else if (lastWinner.name.Contains("Supra"))
         {
-            return "Supra";
+            return skinMaterials[5];
         } else if (lastWinner.name.Contains("GD"))
         {
-            return "GD";
+            return skinMaterials[1];
         } else
         {
-            return "";
+            return null;
         }
     }
 }
