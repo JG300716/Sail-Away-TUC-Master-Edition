@@ -1,0 +1,222 @@
+# Blender 4.2.0 MTL File: 'Boat.blend'
+# www.blender.org
+
+newmtl acmat_0.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/G-2.jpg
+
+newmtl acmat_1.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/W-1.jpg
+
+newmtl acmat_10.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/W-3.jpg
+
+newmtl acmat_11.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/Bebe-01.jpg
+
+newmtl acmat_12.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/S-3.jpg
+
+newmtl acmat_13.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/B-2.jpg
+
+newmtl acmat_14.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/grgr-2.jpg
+
+newmtl acmat_15.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/gg-2.jpg
+
+newmtl acmat_16.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/bb-01.jpg
+
+newmtl acmat_17.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/rr-2.jpg
+
+newmtl acmat_18.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/olol-01.jpg
+
+newmtl acmat_19.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/W-4.jpg
+
+newmtl acmat_2.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/G-1.jpg
+
+newmtl acmat_20.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/FabricPatterns0037_S.jpg
+
+newmtl acmat_21.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/FabricPatterns0035_S.jpg
+
+newmtl acmat_3.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/S-1.jpg
+
+newmtl acmat_4.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+
+newmtl acmat_5.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/B-1.jpg
+
+newmtl acmat_6.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/0745606.jpg
+
+newmtl acmat_7.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/R-1.jpg
+
+newmtl acmat_8.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/glas_512.jpg
+
+newmtl acmat_9.001
+Ns 128.000031
+Ka 1.000000 1.000000 1.000000
+Ks 0.200000 0.200000 0.200000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd J:/Files/Mgr◘/I_Rok/II/PGK/PGK-Project/Assets/Game/Assets/Boat/source/W-2.jpg

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Game.Assets
+namespace Game.Scripts
 {
     public enum YachtSailState : byte
     {
@@ -27,7 +27,7 @@ namespace Game.Assets
             Deg_from_north = 0.0;
             Initialized = yachtPhysics != null;
         }
-
+        
         public void ApplyRotation(float deltaDeg)
         {
             Deg_from_north = (Deg_from_north + deltaDeg) % 360.0;
@@ -37,10 +37,14 @@ namespace Game.Assets
         void Update()
         {
             if (!Initialized) return;
+            
             Acceleration = yachtPhysics.ComputeAcceleration(V_current, Deg_from_north, SailState);
             V_current += Acceleration * Time.deltaTime;
-            transform.Translate(Vector3.forward * (float)(V_current * Time.deltaTime));
+            
+            // Ograniczenie minimalnej prędkości (żeby nie cofał się w nieskończoność)
+            if (V_current < -2.0) V_current = -2.0;
+            
+            //transform.Translate(Vector3.forward * (float)(V_current * Time.deltaTime));
         }
-
     }
 }
