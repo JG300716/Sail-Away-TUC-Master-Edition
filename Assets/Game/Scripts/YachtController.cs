@@ -88,7 +88,7 @@ namespace Game.Scripts
             HandleSailSelectionInput();
             HandleBoomAngleInput();
             HandleCameraSwap();
-            
+            HandleChestOpening();
             // Debug: Wiatr
             if (!Wind .IsUnityNull())
             {
@@ -97,6 +97,20 @@ namespace Game.Scripts
             }
         }
 
+        void HandleChestOpening()
+        {
+            if (Input.GetKeyDown(KeyCode.F1))
+            {
+                Time.timeScale = 0f;
+                //Physics.autoSimulation = false;
+
+                                
+                
+                Time.timeScale = 1f;
+                //Physics.autoSimulation = true;
+            }
+        }
+        
         void FixedUpdate()
         {
             // STEROWANIE PRZEZ FIZYKĘ w FixedUpdate

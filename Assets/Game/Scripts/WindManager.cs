@@ -246,43 +246,5 @@ namespace Game.Scripts
         }
 
         #endregion
-
-        #region Debug
-
-        void OnDrawGizmos()
-        {
-            // Rysuj kierunek wiatru w Scene View
-            if (!Application.isPlaying) return;
-
-            Vector3 center = transform.position + Vector3.up * 5f;
-            Vector3 windDir = GetWindDirection3D() * (float)WindSpeed * 0.5f;
-
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawLine(center, center + windDir);
-            Gizmos.DrawSphere(center + windDir, 0.3f);
-
-            // Etykieta
-            #if UNITY_EDITOR
-            UnityEditor.Handles.Label(
-                center + windDir + Vector3.up,
-                $"Wind: {WindSpeed:F1}m/s @ {WindDegree:F0}°"
-            );
-            #endif
-        }
-
-        // Opcjonalne: GUI debug
-        void OnGUI()
-        {
-            if (!Application.isPlaying) return;
-
-            // Prostą debug info w lewym górnym rogu
-            GUI.Box(new Rect(10, 10, 250, 100), "Wind Manager");
-            GUI.Label(new Rect(20, 35, 230, 20), $"Speed: {WindSpeed:F2} m/s");
-            GUI.Label(new Rect(20, 55, 230, 20), $"Direction: {WindDegree:F0}°");
-            GUI.Label(new Rect(20, 75, 230, 20), $"Target Speed: {TargetWindSpeed:F2} m/s");
-            GUI.Label(new Rect(20, 95, 230, 20), $"Target Dir: {TargetWindDegree:F0}°");
-        }
-
-        #endregion
     }
 }
