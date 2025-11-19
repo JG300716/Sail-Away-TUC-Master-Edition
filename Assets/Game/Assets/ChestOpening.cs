@@ -144,7 +144,7 @@ public class ChestOpening : MonoBehaviour
             return skinMaterials[5];
         } else if (lastWinner.name.Contains("GD"))
         {
-            return skinMaterials[1];
+            return skinMaterials[1];    
         } else
         {
             return null;

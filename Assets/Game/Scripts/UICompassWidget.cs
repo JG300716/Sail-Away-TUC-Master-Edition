@@ -1,7 +1,6 @@
 ﻿using Game.Scripts;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using Unity.VisualScripting;
 
 namespace Game.Scripts
