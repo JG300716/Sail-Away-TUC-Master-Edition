@@ -88,9 +88,7 @@ namespace Game.Scripts
                         rb.AddForceAtPosition(floatForce, floatPoint.position, ForceMode.Force);
                         
                         // Opór wody
-                        Vector3 velocity = rb.GetPointVelocity(floatPoint.position);
-                        rb.AddForceAtPosition(-velocity * waterDrag * 0.1f, floatPoint.position, ForceMode.Force);
-                    }
+                        rb.AddForceAtPosition(waterDrag * 0.1f * -rb.GetPointVelocity(floatPoint.position), floatPoint.position, ForceMode.Force);                    }
                 }
             }
         }

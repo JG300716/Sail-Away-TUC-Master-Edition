@@ -73,13 +73,12 @@ namespace Game.Scripts
 
                 yield return null;
             }
-
-            isRolling = false;
-
+            
             RectTransform winner = GetWinningSkin();
             lastWinner = winner;
+
             yield return new WaitForSecondsRealtime(hideDelay);
-            gameObject.SetActive(false);
+            isRolling = false;
         }
 
         private RectTransform GetWinningSkin()
@@ -107,7 +106,6 @@ namespace Game.Scripts
 
         public IEnumerator StartRolling()
         {
-            gameObject.SetActive(true);
             yield return RollSkins();
         }
 
@@ -116,27 +114,12 @@ namespace Game.Scripts
             if (skinMaterials.Count == 0 || lastWinner.IsUnityNull()) return null;
 
             if (lastWinner.name.Contains("Carpet")) return skinMaterials[0];
-            else if (lastWinner.name.Contains("Ladybug")) return skinMaterials[3];
-            else if (lastWinner.name.Contains("Shrek"))
-            {
-                return skinMaterials[4];
-            }
-            else if (lastWinner.name.Contains("Galaxy"))
-            {
-                return skinMaterials[2];
-            }
-            else if (lastWinner.name.Contains("Supra"))
-            {
-                return skinMaterials[5];
-            }
-            else if (lastWinner.name.Contains("GD"))
-            {
-                return skinMaterials[1];
-            }
-            else
-            {
-                return null;
-            }
+            if (lastWinner.name.Contains("Ladybug")) return skinMaterials[3];
+            if (lastWinner.name.Contains("Shrek")) return skinMaterials[4];
+            if (lastWinner.name.Contains("Galaxy")) return skinMaterials[2];
+            else if (lastWinner.name.Contains("Supra")) return skinMaterials[5];
+            else if (lastWinner.name.Contains("GD")) return skinMaterials[1];
+            else return null;
         }
     }
 }

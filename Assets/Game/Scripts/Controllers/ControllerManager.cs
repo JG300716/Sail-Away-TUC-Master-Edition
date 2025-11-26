@@ -31,6 +31,7 @@ namespace Game.Scripts.Controllers
                 controller.inputController.Initialize();
                 if (!controller.isActive) continue;
                 currentInputController.Add(controllers.IndexOf(controller));
+                controller.inputController.EnableController();
             }
 
             foreach (var cameraController in cameraControllers)
@@ -39,6 +40,7 @@ namespace Game.Scripts.Controllers
                 cameraController.Initialize();
             }
             if (defaultCameraController.IsUnityNull()) throw new NullReferenceException("Default camera controller is null in ControllerManager.");
+            defaultCameraController.EnableController();
             currentCameraController = defaultCameraController.UpdateController;
         }
 

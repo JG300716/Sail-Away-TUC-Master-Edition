@@ -552,8 +552,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ChestOpening: {fileID: 5893668}
-  grotSkinnedMeshRenderer: {fileID: 0}
-  fokSkinnedMeshRenderer: {fileID: 0}
+  grotSkinnedMeshRenderer: {fileID: 1153220752}
+  fokSkinnedMeshRenderer: {fileID: 1776553318}
 --- !u!1001 &459062107
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -562,6 +562,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 908629363443417240, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
+      propertyPath: m_Mass
+      value: 0.001
+      objectReference: {fileID: 0}
     - target: {fileID: 908629363443417240, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
       propertyPath: m_Interpolate
       value: 0
@@ -611,6 +615,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2486381023074892474, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
+      propertyPath: m_Mass
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2486381023074892474, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
       propertyPath: m_LinearDamping
       value: 0.99
       objectReference: {fileID: 0}
@@ -622,9 +630,17 @@ PrefabInstance:
       propertyPath: waterSurface
       value: 
       objectReference: {fileID: 481762612}
+    - target: {fileID: 2656801989082756645, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
+      propertyPath: floatStrength
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3808689921128561914, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
       propertyPath: m_Name
       value: Yacht 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5347852346582268429, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1118,13 +1134,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!137 &1153220752 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2070016077787070320, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
+  m_PrefabInstance: {fileID: 459062107}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1555855100 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5347852346582268429, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
   m_PrefabInstance: {fileID: 459062107}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c662671ddd6246a888f1acb07ce37fde, type: 3}
   m_Name: 
@@ -1140,6 +1161,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d7a7f7ebc7e87049a78413de45f1d46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!137 &1776553318 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7477983151895339685, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
+  m_PrefabInstance: {fileID: 459062107}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2144793581
 GameObject:
   m_ObjectHideFlags: 0

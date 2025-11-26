@@ -10,9 +10,6 @@ namespace Game.Scripts.Controllers
         [SerializeField] ChestOpening ChestOpening;
         [SerializeField] private SkinnedMeshRenderer grotSkinnedMeshRenderer;
         [SerializeField] private SkinnedMeshRenderer fokSkinnedMeshRenderer;
-        
-        private Coroutine chestOpeningCoroutine;
-
         public override void Initialize()
         {
             if (ChestOpening.IsUnityNull()) Debug.LogError("ChestOpening reference is not set in LootBoxController.");
@@ -24,6 +21,7 @@ namespace Game.Scripts.Controllers
         {
             if (!Input.GetKeyDown(KeyCode.F1)) return;
             if (ChestOpening.isRolling) return;
+            ChestOpening.gameObject.SetActive(true);
             StartCoroutine(HandleChestOpeningCoroutine());
         }
 
@@ -44,8 +42,7 @@ namespace Game.Scripts.Controllers
             Time.timeScale = 0f;
 
             if (ChestOpening.IsUnityNull()) yield break;
-            chestOpeningCoroutine = StartCoroutine(ChestOpening.StartRolling());
-            yield return chestOpeningCoroutine;
+            yield return ChestOpening.StartRolling();
 
             Material material = ChestOpening.GetLastWinnerImageName();
             if (!material.IsUnityNull() && !grotSkinnedMeshRenderer.IsUnityNull() && !fokSkinnedMeshRenderer.IsUnityNull())
@@ -53,7 +50,8 @@ namespace Game.Scripts.Controllers
                 grotSkinnedMeshRenderer.material = material;
                 fokSkinnedMeshRenderer.material = material;
             }
-            chestOpeningCoroutine = null;
+            
+            ChestOpening.gameObject.SetActive(false);
             Time.timeScale = 1f;
         }
     }
