@@ -1,10 +1,10 @@
 ﻿using System.Collections;
-using Game.Scripts.Controllers;
+using Game.Scripts;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Splines;
 
-namespace Game.Scripts
+namespace Game.Scripts.Controllers
 {
     public enum SelectedSail
     {
@@ -18,9 +18,7 @@ namespace Game.Scripts
         [SerializeField] private YachtState yachtState;
         [SerializeField] private Rigidbody yachtRigidbody; // DODANE
         [SerializeField] private CameraController cameraController;
-        [SerializeField] private Camera mainCamera;
-        [SerializeField] private Camera secondCamera;
-        
+
         [Header("Steering - PHYSICS BASED")]
         [SerializeField] private float rudderTorque = 5f; // Moment obrotowy steru
         [SerializeField] private float rudderStep = 30f; // Kąt steru [°/s]
@@ -88,14 +86,26 @@ namespace Game.Scripts
             HandleSailSelectionInput();
             HandleBoomAngleInput();
             HandleCameraSwap();
+            LeaveYacht();
             // Debug: Wiatr
             if (Wind .IsUnityNull()) return;
             var windDir = Quaternion.Euler(0, (float)Wind.WindDegree, 0) * Vector3.forward;
             Debug.DrawLine(transform.position, transform.position + windDir * 5f, Color.cyan);
         }
 
-        public override void EnableController(){}
-        public override void DisableController(){}
+        public override void FixedUpdateController(){}
+
+        public override void EnableController()
+        {
+            if (yachtState.IsUnityNull()) return;
+            yachtState.isDriving = true;
+        }
+
+        public override void DisableController()
+        {
+            if (yachtState.IsUnityNull()) return;
+            yachtState.isDriving = false;
+        }
         
         void FixedUpdate()
         {
@@ -106,6 +116,14 @@ namespace Game.Scripts
         {
             Gizmos.color = Color.red;
             Gizmos.DrawLine(transform.position, transform.position + transform.forward * 3);
+        }
+        
+        void LeaveYacht()
+        {
+            if (yachtState.IsUnityNull()) return;
+            if (!yachtState.isDriving) return;
+            if (!Input.GetKeyDown(KeyCode.F)) return;
+            GameManager.LeaveYacht();
         }
         
         #region Boom Joint Setup
@@ -141,12 +159,8 @@ namespace Game.Scripts
         void HandleCameraSwap()
         {
             if (!Input.GetKeyDown(KeyCode.Tab)) return;
-            if (mainCamera.IsUnityNull() || secondCamera.IsUnityNull()) return;
-            
-            var isMainCameraActive = mainCamera.enabled;
-            mainCamera.enabled = !isMainCameraActive;
-            secondCamera.enabled = isMainCameraActive;
-            cameraController.boatCamera = isMainCameraActive ? secondCamera : mainCamera;
+            if (cameraController.IsUnityNull()) return;
+            cameraController.ChangeCamera();
         }
         
         #endregion

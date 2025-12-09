@@ -24,6 +24,7 @@ namespace Game.Scripts.Controllers
             ChestOpening.gameObject.SetActive(true);
             StartCoroutine(HandleChestOpeningCoroutine());
         }
+        public override void FixedUpdateController(){}
 
         public override void EnableController()
         {

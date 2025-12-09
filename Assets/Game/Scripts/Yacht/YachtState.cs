@@ -21,6 +21,8 @@ namespace Game.Scripts
         
         private bool Initialized = false;
         
+        public bool isDriving = true;
+        
         void Start()
         {
             V_current = 0.0;
