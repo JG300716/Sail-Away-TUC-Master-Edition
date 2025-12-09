@@ -33,7 +33,6 @@ namespace Game.Scripts
             {
                 skins[i].anchoredPosition = new Vector2(i * spacing, 0);
             }
-            gameObject.SetActive(false);
         }
 
         private IEnumerator RollSkins()
@@ -117,9 +116,9 @@ namespace Game.Scripts
             if (lastWinner.name.Contains("Ladybug")) return skinMaterials[3];
             if (lastWinner.name.Contains("Shrek")) return skinMaterials[4];
             if (lastWinner.name.Contains("Galaxy")) return skinMaterials[2];
-            else if (lastWinner.name.Contains("Supra")) return skinMaterials[5];
-            else if (lastWinner.name.Contains("GD")) return skinMaterials[1];
-            else return null;
+            if (lastWinner.name.Contains("Supra")) return skinMaterials[5];
+            if (lastWinner.name.Contains("GD")) return skinMaterials[1];
+            return null;
         }
     }
 }

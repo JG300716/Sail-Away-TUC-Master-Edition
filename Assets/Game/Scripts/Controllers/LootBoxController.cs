@@ -1,6 +1,9 @@
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
+using System.Collections;
+using Game.Scripts.UI;
+using Unity.VisualScripting;
+using Game.Scripts.Interface;
+
 
 namespace Game.Scripts.Controllers
 {
@@ -21,9 +24,10 @@ namespace Game.Scripts.Controllers
         {
             if (!Input.GetKeyDown(KeyCode.F1)) return;
             if (ChestOpening.isRolling) return;
-            ChestOpening.gameObject.SetActive(true);
+            UIManager.OpeningScreenShow();
             StartCoroutine(HandleChestOpeningCoroutine());
         }
+        public override void FixedUpdateController(){}
 
         public override void EnableController()
         {
@@ -41,17 +45,16 @@ namespace Game.Scripts.Controllers
         {
             Time.timeScale = 0f;
 
-            if (ChestOpening.IsUnityNull()) yield break;
-            yield return ChestOpening.StartRolling();
+            yield return ChestOpening?.StartRolling();
 
-            Material material = ChestOpening.GetLastWinnerImageName();
+            Material material = ChestOpening?.GetLastWinnerImageName();
             if (!material.IsUnityNull() && !grotSkinnedMeshRenderer.IsUnityNull() && !fokSkinnedMeshRenderer.IsUnityNull())
             {
                 grotSkinnedMeshRenderer.material = material;
                 fokSkinnedMeshRenderer.material = material;
             }
             
-            ChestOpening.gameObject.SetActive(false);
+            UIManager.OpeningScreenHide();
             Time.timeScale = 1f;
         }
     }

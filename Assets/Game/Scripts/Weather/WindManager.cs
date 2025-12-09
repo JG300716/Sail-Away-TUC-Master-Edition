@@ -1,51 +1,12 @@
 ﻿using UnityEngine;
+using Game.Scripts.Interface;
 
 namespace Game.Scripts
 {
-    /// <summary>
-    /// Wind Manager - Singleton
-    /// Zarządza wiatrem w symulacji jachtu
-    /// Dostępny globalnie przez WindManager.Instance
-    /// </summary>
-    public class WindManager : MonoBehaviour
+    public class WindManager : SingletonInterface<WindManager>
     {
-        #region Singleton
         
-        // Statyczna instancja - dostępna z każdego miejsca w kodzie
-        public static WindManager Instance { get; private set; }
-
-        void Awake()
-        {
-            // Sprawdź czy już istnieje instancja
-            if (Instance != null && Instance != this)
-            {
-                // Jeśli tak, zniszcz ten duplikat
-                Debug.LogWarning("Duplicate WindManager found! Destroying...");
-                Destroy(this.gameObject);
-                return;
-            }
-
-            // Ustaw tę instancję jako główną
-            Instance = this;
-
-            // Opcjonalnie: zachowaj przez zmiany scen
-            // Odkomentuj jeśli WindManager ma przetrwać loading sceny
-            // DontDestroyOnLoad(this.gameObject);
-
-            Debug.Log("WindManager Singleton initialized");
-        }
-
-        void OnDestroy()
-        {
-            // Wyczyść instancję gdy obiekt jest niszczony
-            if (Instance == this)
-            {
-                Instance = null;
-            }
-        }
-
-        #endregion
-
+        
         #region Wind Parameters
 
         // --- Parametry wiatru ---

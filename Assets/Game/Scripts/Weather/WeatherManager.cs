@@ -1,17 +1,23 @@
+using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using UnityEngine.Rendering;
+using Random = UnityEngine.Random;
+using Game.Scripts.Interface;
 
-namespace Game.Scripts
+namespace Game.Scripts.Weather
 {
-    public class WeatherManager : MonoBehaviour
+    public class WeatherManager : SingletonInterface<WeatherManager>
     {
         [Header("References")]   
-        [SerializeField] private Camera mainCamera;
         [SerializeField] private DirectionalLight sunLight;
-        [SerializeField] private WindManager windManager;
+
+        // TODO : Wind Manager implementation
+        [SerializeField] WindManager windManager;
+        private Camera mainCamera;
+        
         [SerializeField] private Volume globalVolume;
         
         [Header("Volume Profiles")]
@@ -53,16 +59,17 @@ namespace Game.Scripts
             Storm
         }
         
-        void Start()
+        public void Initialize(Camera cam)
         {
+            this.mainCamera = cam;
             if (globalVolume != null && dayProfile != null)
             {
                 globalVolume.profile = dayProfile;
             }
+            if (windManager.IsUnityNull())
             
             weatherCheckTimer = weatherCheckInterval;
         }
-
         void Update()
         {
             // Timer sprawdzający zmiany pogody
@@ -108,8 +115,6 @@ namespace Game.Scripts
             weatherTimer = 0f;
             
             GenerateRain();
-            
-            Debug.Log($"Rozpoczęto deszcz na {currentWeatherDuration} sekund");
         }
         
         private void StartStorm()
@@ -127,13 +132,10 @@ namespace Game.Scripts
                 StopCoroutine(stormCoroutine);
             }
             stormCoroutine = StartCoroutine(StormRoutine());
-            
-            Debug.Log($"Rozpoczęto burzę na {currentWeatherDuration} sekund");
         }
         
         private void EndCurrentWeather()
         {
-            Debug.Log($"Zakończono pogodę: {currentWeather}");
             
             if (isStorming && stormCoroutine != null)
             {
@@ -161,39 +163,33 @@ namespace Game.Scripts
             {
                 float waitTime = Random.Range(lightningMinInterval, lightningMaxInterval);
                 yield return new WaitForSeconds(waitTime);
-                
                 GenerateLightning();
             }
         }
         
         private void GenerateLightning()
         {
-            Debug.Log("⚡ Błyskawica!");
-            
             Lightning lightning = Instantiate(lightningPrefab);
-            lightning.Initialize(mainCamera);
-            lightning.Generate();
+            if (lightning.IsUnityNull()) return;
+            lightning.Generate(mainCamera);
         }
         
         public void SetDayProfile()
         {
             if (globalVolume.IsUnityNull() || dayProfile.IsUnityNull()) return;
             globalVolume.profile = dayProfile;
-            Debug.Log("Ustawiono profil: Dzien");
         }
         
         public void SetNightProfile()
         {
             if (globalVolume.IsUnityNull() || nightProfile.IsUnityNull()) return;
             globalVolume.profile = nightProfile;
-            Debug.Log("Ustawiono profil: Noc");
         }
         
         public void SetBloodMoonProfile()
         {
             if (globalVolume.IsUnityNull() || bloodMoonProfile.IsUnityNull()) return;
             globalVolume.profile = bloodMoonProfile;
-            Debug.Log("Ustawiono profil: Krwawy Księżyc");
         }
         
         public bool IsRaining => isRaining;

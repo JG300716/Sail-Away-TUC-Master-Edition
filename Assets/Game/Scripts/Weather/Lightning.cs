@@ -91,9 +91,9 @@ namespace Game.Scripts
                 mainLineRenderer.material = lightningMaterial;
         }
 
-        public void Generate()
+        public void Generate(Camera camera = null)
         {
-            if (mainLineRenderer.IsUnityNull()) Initialize();
+            if (mainLineRenderer.IsUnityNull()) Initialize(camera);
 
             ClearOldBolts();
             GenerateProceduralLightning();

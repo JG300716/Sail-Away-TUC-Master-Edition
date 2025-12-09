@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 3
   tags:
   - WindManager
+  - Exit
+  - Enter
+  - Steer
   layers:
   - Default
   - TransparentFX
@@ -14,7 +17,7 @@ TagManager:
   - UI
   - Bom
   - Rope
-  - 
+  - CanWalk
   - 
   - 
   - 
