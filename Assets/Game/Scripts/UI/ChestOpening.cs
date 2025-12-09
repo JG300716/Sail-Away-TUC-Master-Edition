@@ -33,7 +33,6 @@ namespace Game.Scripts
             {
                 skins[i].anchoredPosition = new Vector2(i * spacing, 0);
             }
-            gameObject.SetActive(false);
         }
 
         private IEnumerator RollSkins()

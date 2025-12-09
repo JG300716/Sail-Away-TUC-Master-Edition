@@ -1,8 +1,7 @@
-﻿using System.Collections;
-using Game.Scripts;
+﻿using UnityEngine;
 using Unity.VisualScripting;
-using UnityEngine;
 using UnityEngine.Splines;
+using Game.Scripts.Interface;
 
 namespace Game.Scripts.Controllers
 {
@@ -18,6 +17,7 @@ namespace Game.Scripts.Controllers
         [SerializeField] private YachtState yachtState;
         [SerializeField] private Rigidbody yachtRigidbody; // DODANE
         [SerializeField] private CameraController cameraController;
+        [SerializeField] private GameObject steeringWheelObject;
 
         [Header("Steering - PHYSICS BASED")]
         [SerializeField] private float rudderTorque = 5f; // Moment obrotowy steru
@@ -90,7 +90,6 @@ namespace Game.Scripts.Controllers
             // Debug: Wiatr
             if (Wind .IsUnityNull()) return;
             var windDir = Quaternion.Euler(0, (float)Wind.WindDegree, 0) * Vector3.forward;
-            Debug.DrawLine(transform.position, transform.position + windDir * 5f, Color.cyan);
         }
 
         public override void FixedUpdateController(){}
@@ -111,19 +110,13 @@ namespace Game.Scripts.Controllers
         {
             ApplyPhysicsSteering();
         }
-
-        void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, transform.position + transform.forward * 3);
-        }
         
         void LeaveYacht()
         {
             if (yachtState.IsUnityNull()) return;
             if (!yachtState.isDriving) return;
             if (!Input.GetKeyDown(KeyCode.F)) return;
-            GameManager.LeaveYacht();
+            GameManager.UnsteerYacht();
         }
         
         #region Boom Joint Setup
@@ -169,12 +162,13 @@ namespace Game.Scripts.Controllers
         
         private void HandleSteeringInput()
         {
-            // Aktualizuj kąt steru (nie rotuj jeszcze jachtu!)
+            float rudderBefore = rudderAngle;
             if (Input.GetKey(KeyCode.A)) rudderAngle -= rudderStep * Time.deltaTime;
-            if (Input.GetKey(KeyCode.D)) rudderAngle += rudderStep * Time.deltaTime;
-            if (Input.GetKey(KeyCode.Space)) rudderAngle = 0f;
+            else if (Input.GetKey(KeyCode.D)) rudderAngle += rudderStep * Time.deltaTime;
+            //if (Input.GetKey(KeyCode.Space)) rudderAngle = 0f;
             
             rudderAngle = Mathf.Clamp(rudderAngle, rudderMin, rudderMax);
+            steeringWheelObject?.transform.Rotate((rudderAngle - rudderBefore) * 10f, 0f, 0f);
         }
 
         private void ApplyPhysicsSteering()
@@ -186,13 +180,13 @@ namespace Game.Scripts.Controllers
             float forwardSpeed = velocityXZ.magnitude;
 
             float speedFactor = Mathf.Max(forwardSpeed / 3f, 0.5f); // Min 50% mocy
-            float torqueMagnitude = rudderAngle * rudderTorque * speedFactor * 10f; // x10 multiplier!
+            float torqueMagnitude = rudderAngle * rudderTorque * speedFactor; 
     
             Vector3 torque = Vector3.up * torqueMagnitude; // USUŃ Mathf.Deg2Rad!
             
             yachtRigidbody.AddTorque(torque, ForceMode.Force);
     
-            if (!yachtState .IsUnityNull())
+            if (!yachtState.IsUnityNull())
             {
                 yachtState.Deg_from_north = transform.eulerAngles.y;
             }
@@ -266,8 +260,17 @@ namespace Game.Scripts.Controllers
         
         private void HandleSailSelectionInput()
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1)) selectedSail = SelectedSail.Grot;
-            if (Input.GetKeyDown(KeyCode.Alpha2)) selectedSail = SelectedSail.Fok;
+            if (Input.GetKeyDown(KeyCode.Alpha1))
+            {
+                selectedSail = SelectedSail.Grot;
+                ObjectHighlightManager.HighlightObject(grotClothObject);
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha2))
+            {
+                selectedSail = SelectedSail.Fok;
+                ObjectHighlightManager.HighlightObject(fokClothObject);
+            }
         }
         
         #endregion

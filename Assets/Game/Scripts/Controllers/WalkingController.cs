@@ -1,9 +1,8 @@
-using System.Linq;
 using UnityEngine;
-using Game.Scripts.Controllers;
+using Game.Scripts.UI;
 using Unity.VisualScripting;
 using UnityEngine.Serialization;
-using static Game.Scripts.Controllers.CameraController;
+using Game.Scripts.Interface;
 
 namespace Game.Scripts.Controllers
 {
@@ -19,12 +18,46 @@ namespace Game.Scripts.Controllers
         [SerializeField] private LayerMask meshLayer;
         [SerializeField] private float heightOffset = 2f;
         [SerializeField] private float slideRadius = 2f;
+        
+        private bool triggerBuffor = false;
         public override void Initialize(){}
 
         public override void EnableController(){}
 
         public override void DisableController(){}
-        public override void UpdateController(){}
+        public void OnTriggerEnter(Collider other)
+        {
+            if (!isActive) return;
+            if (other.IsUnityNull()) return;
+            if (other.CompareTag("Enter"))
+            {
+                UIManager.TriggerUI(UIManager.basicEnterTriggerMessage);
+            }
+            else if (other.CompareTag("Exit"))
+            {
+                UIManager.TriggerUI(UIManager.basicExitTriggerMessage);
+            }
+            else if (other.CompareTag("Steer"))
+            {
+                UIManager.TriggerUI(UIManager.basicSteerTriggerMessage);
+            }
+        }
+
+        public void OnTriggerStay(Collider other)
+        {
+            if (!isActive) return;
+            if (!triggerBuffor) return;
+            triggerBuffor = false;
+            if (other.IsUnityNull()) return;
+            if (other.CompareTag("Enter")) GameManager.EnterYacht();
+            if (other.CompareTag("Exit")) GameManager.LeaveYacht();
+            if (other.CompareTag("Steer")) GameManager.SteerYacht();
+        }
+
+        public override void UpdateController()
+        {
+            if (Input.GetKeyDown(KeyCode.F)) triggerBuffor = true;
+        }
 
         public override void FixedUpdateController()
         {

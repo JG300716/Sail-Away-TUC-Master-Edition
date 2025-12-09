@@ -15,7 +15,7 @@ namespace Game.Scripts.Weather
         [SerializeField] private DirectionalLight sunLight;
 
         // TODO : Wind Manager implementation
-        private static WindManager windManager => WindManager.Instance;
+        [SerializeField] WindManager windManager;
         private Camera mainCamera;
         
         [SerializeField] private Volume globalVolume;

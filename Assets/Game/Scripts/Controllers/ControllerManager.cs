@@ -35,6 +35,7 @@ namespace Game.Scripts.Controllers
             {
                 if (controller.IsUnityNull()) continue;
                 controller.inputController.Initialize();
+                controller.inputController.package = controller;
                 if (!controller.isActive) continue;
                 currentInputController.Add(controllers.IndexOf(controller));
                 controller.inputController.EnableController();
@@ -104,7 +105,7 @@ namespace Game.Scripts.Controllers
             RunControllers(c => c.FixedUpdateController());
             currentCameraController?.FixedUpdateController();
         }
-        
+
         private void RunControllers(System.Action<ControllerInterface> updateFunc)
         {
             if (controllers.IsUnityNull()) return;
@@ -121,7 +122,6 @@ namespace Game.Scripts.Controllers
             foreach (var index in inputControllersToDeactivate)
             {
                 var ctrl = controllers[index];
-                ctrl.inputController.DisableController();
                 ctrl.isActive = false;
                 currentInputController.Remove(index);
             }
@@ -132,7 +132,6 @@ namespace Game.Scripts.Controllers
             {
                 if (currentInputController.Contains(index)) continue;
                 var ctrl = controllers[index];
-                ctrl.inputController.EnableController();
                 ctrl.isActive = true;
                 currentInputController.Add(index);
             }

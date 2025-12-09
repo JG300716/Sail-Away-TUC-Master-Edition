@@ -3,48 +3,62 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-public class ShowIfEnumAttribute : PropertyAttribute
+namespace Game.Editor
 {
-    public string enumFieldName;
-    public int[] enumValue;
-
-    public ShowIfEnumAttribute(string enumFieldName, params int[] enumValue)
+    public class ShowIfEnumAttribute : PropertyAttribute
     {
-        this.enumFieldName = enumFieldName;
-        this.enumValue = enumValue;
-    }
-}
+        public string enumFieldName;
+        public int[] enumValue;
 
-#if UNITY_EDITOR
-[CustomPropertyDrawer(typeof(ShowIfEnumAttribute))]
-public class ShowIfEnumDrawer : PropertyDrawer
-{
-    public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    {
-        ShowIfEnumAttribute attr = (ShowIfEnumAttribute)attribute;
-        SerializedProperty enumProp = property.serializedObject.FindProperty(attr.enumFieldName);
-
-        for (int i = 0; i < attr.enumValue.Length; i++)
+        public ShowIfEnumAttribute(string enumFieldName, params int[] enumValue)
         {
-            if (enumProp != null && enumProp.enumValueIndex == attr.enumValue[i])
+            this.enumFieldName = enumFieldName;
+            this.enumValue = enumValue;
+        }
+    }
+    
+    #if UNITY_EDITOR
+    [CustomPropertyDrawer(typeof(ShowIfEnumAttribute))]
+    public class ShowIfEnumDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            ShowIfEnumAttribute attr = (ShowIfEnumAttribute)attribute;
+            SerializedProperty enumProp = property.serializedObject.FindProperty(attr.enumFieldName);
+
+            for (int i = 0; i < attr.enumValue.Length; i++)
             {
-                EditorGUI.PropertyField(position, property, label, true);
-                return;
+                if (enumProp != null && enumProp.enumValueIndex == attr.enumValue[i])
+                {
+                    EditorGUI.PropertyField(position, property, label, true);
+                    return;
+                }
             }
         }
-    }
 
-    public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    {
-        ShowIfEnumAttribute attr = (ShowIfEnumAttribute)attribute;
-        SerializedProperty enumProp = property.serializedObject.FindProperty(attr.enumFieldName);
-
-        for (int i = 0; i < attr.enumValue.Length; i++)
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            if (enumProp != null && enumProp.enumValueIndex == attr.enumValue[i])
-                return EditorGUI.GetPropertyHeight(property, label, true);
+            ShowIfEnumAttribute attr = (ShowIfEnumAttribute)attribute;
+            SerializedProperty enumProp = property.serializedObject.FindProperty(attr.enumFieldName);
+
+            for (int i = 0; i < attr.enumValue.Length; i++)
+            {
+                if (enumProp != null && enumProp.enumValueIndex == attr.enumValue[i])
+                    return EditorGUI.GetPropertyHeight(property, label, true);
+            }
+            return -EditorGUIUtility.standardVerticalSpacing;
         }
-        return -EditorGUIUtility.standardVerticalSpacing;
     }
+
+    [CustomPropertyDrawer(typeof(Scripts.Interface.ReadOnlyAttribute))]
+    public class ReadOnlyDrawer : PropertyDrawer
+    {
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            GUI.enabled = false;               // disable editing
+            EditorGUI.PropertyField(position, property, label);
+            GUI.enabled = true;                // restore editing
+        }
+    }
+    #endif
 }
-#endif

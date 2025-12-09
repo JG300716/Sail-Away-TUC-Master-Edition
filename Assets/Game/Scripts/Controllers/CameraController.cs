@@ -1,6 +1,6 @@
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
+using Game.Scripts.Interface;
+using Unity.VisualScripting;
 
 namespace Game.Scripts.Controllers
 {

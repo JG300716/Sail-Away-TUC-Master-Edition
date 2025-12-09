@@ -1,6 +1,7 @@
 using UnityEngine;
 using Game.Scripts.Interface;
 using Game.Scripts.Controllers;
+using Game.Scripts.UI;
 using Game.Scripts.Weather;
 using Unity.VisualScripting;
 
@@ -12,6 +13,8 @@ namespace Game.Scripts
         private static WeatherManager weatherManager => WeatherManager.Instance;
         private static ControllerManager controllerManager => ControllerManager.Instance;
         
+        private static UIManager uiManager => UIManager.Instance;
+        
         [Header("Game References")]
         [SerializeField] private Camera mainCamera;
         [SerializeField] private Transform HumanPlayer;
@@ -22,12 +25,14 @@ namespace Game.Scripts
         {
             if (mainCamera.IsUnityNull()) mainCamera = Camera.main;
             if (weatherManager.IsUnityNull()) throw new System.Exception("WeatherManager instance is null in GameManager.");
+            if (uiManager.IsUnityNull()) throw new System.Exception("UIManager instance is null in GameManager.");
+            if (controllerManager.IsUnityNull()) throw new System.Exception("ControllerManager instance is null in GameManager.");
             
             weatherManager.Initialize(mainCamera);
-            EnterYacht();
+            UnsteerYacht();
         }
 
-        public static void EnterYacht()
+        public static void SteerYacht()
         {
             if (controllerManager.IsUnityNull()) return;
             controllerManager.DeactivateInputController(1);
@@ -42,9 +47,11 @@ namespace Game.Scripts
             Instance.HumanPlayer.transform.SetParent(Instance.playerSteeringAttachPoint);
             Instance.HumanPlayer.transform.localPosition = Vector3.zero;
             Instance.HumanPlayer.transform.localRotation = Quaternion.identity;
+            
+            UIManager.TriggerUI(UIManager.basicUnsteerTriggerMessage);
         }
         
-        public static void LeaveYacht()
+        public static void UnsteerYacht()
         {
             if (controllerManager.IsUnityNull()) return;
             controllerManager.DeactivateInputController(0);
@@ -57,6 +64,19 @@ namespace Game.Scripts
             if (Instance.HumanPlayer.IsUnityNull()) return;
             if (Instance.Yacht.IsUnityNull()) return;
             Instance.HumanPlayer.transform.SetParent(Instance.Yacht);
+            
+            if (uiManager.IsUnityNull()) return;
+            UIManager.TriggerUI(UIManager.basicSteerTriggerMessage);
+        }
+
+        public static void EnterYacht()
+        {
+            //TODO: Implement entering yacht logic
+        }
+
+        public static void LeaveYacht()
+        {
+            //TODO: Implement leaving yacht logic
         }
     }
 }
