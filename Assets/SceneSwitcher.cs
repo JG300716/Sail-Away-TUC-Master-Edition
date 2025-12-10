@@ -3,8 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class SceneSwitcher : MonoBehaviour
 {
-    [SerializeField] private string mainSceneName = "ocean";
-    [SerializeField] private string secondarySceneName = "inside";
+    //[SerializeField] private string mainSceneName = "ocean";
+    //[SerializeField] private string secondarySceneName = "inside";
 
     private bool secondaryLoaded = false;
 
@@ -13,8 +13,8 @@ public class SceneSwitcher : MonoBehaviour
         // Wczytaj scenê A (g³ówn¹)
         if (Input.GetKeyDown(KeyCode.O))
         {
-            SceneManager.LoadScene(mainSceneName, LoadSceneMode.Single);
-            Time.timeScale = 1f; // na wszelki wypadek
+            SceneManager.LoadScene(0, LoadSceneMode.Single);
+            //Time.timeScale = 1f; // na wszelki wypadek
         }
 
         // Wczytaj scenê B jako additive i zapauzuj A
@@ -22,15 +22,15 @@ public class SceneSwitcher : MonoBehaviour
         {
             if (!secondaryLoaded)
             {
-                SceneManager.LoadScene(secondarySceneName, LoadSceneMode.Additive);
-                Time.timeScale = 0f;
+                SceneManager.LoadScene(1, LoadSceneMode.Additive);
+                //Time.timeScale = 0f;
                 secondaryLoaded = true;
             }
             else
             {
                 // Zamknij B i wznow czas
-                SceneManager.UnloadSceneAsync(secondarySceneName);
-                Time.timeScale = 1f;
+                SceneManager.UnloadSceneAsync(1);
+                //Time.timeScale = 1f;
                 secondaryLoaded = false;
             }
         }
