@@ -137,6 +137,5 @@ namespace Game.Scripts.Controllers
             }
             inputControllersToActivate.Clear();
         }
-        
     }
 }
