@@ -4,6 +4,7 @@ using Game.Scripts.Controllers;
 using Game.Scripts.UI;
 using Game.Scripts.Weather;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 namespace Game.Scripts
 {
@@ -20,6 +21,8 @@ namespace Game.Scripts
         [SerializeField] private Transform HumanPlayer;
         [SerializeField] private Transform Yacht;
         [SerializeField] private Transform playerSteeringAttachPoint;
+
+        private static bool secondaryLoaded = false;
 
         void Start()
         {
@@ -71,12 +74,28 @@ namespace Game.Scripts
 
         public static void EnterYacht()
         {
-            //TODO: Implement entering yacht logic
+            if (!secondaryLoaded)
+            {
+                SceneManager.LoadScene(1, LoadSceneMode.Additive);
+                UIManager.HideCanvasGroup(UIManager.Instance.steeringHudUI);
+                UIManager.TriggerUI(UIManager.basicExitTriggerMessage);
+                //Time.timeScale = 0f;
+            }
+            else
+            {
+                SceneManager.UnloadSceneAsync(1);
+                UIManager.ShowCanvasGroup(UIManager.Instance.steeringHudUI);
+                Cursor.lockState = CursorLockMode.Locked;
+                //Time.timeScale = 1f;
+            }        
+            secondaryLoaded = !secondaryLoaded;
+            
         }
 
         public static void LeaveYacht()
         {
-            //TODO: Implement leaving yacht logic
+            SceneManager.LoadScene(0, LoadSceneMode.Single);
+            UIManager.ShowCanvasGroup(UIManager.Instance.steeringHudUI);
         }
     }
 }
