@@ -1195,6 +1195,59 @@ Transform:
   - {fileID: 1734218554448418711}
   m_Father: {fileID: 56703497118047586}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5770705763890590114
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1456876832819526846}
+  - component: {fileID: 5228203608806278569}
+  m_Layer: 0
+  m_Name: ExitTrigger
+  m_TagString: Exit
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1456876832819526846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5770705763890590114}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.9379883, y: 0.931, z: 1.4874344}
+  m_LocalScale: {x: 4.222, y: 1.597, z: 1.239384}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 56703497118047586}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &5228203608806278569
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5770705763890590114}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 1
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6170465582660638414
 GameObject:
   m_ObjectHideFlags: 0
@@ -2093,6 +2146,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9290787959881264bb65f49673e5d4b3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7791889320277749989}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 9290787959881264bb65f49673e5d4b3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1456876832819526846}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9290787959881264bb65f49673e5d4b3, type: 3}
 --- !u!4 &56703497118047586 stripped

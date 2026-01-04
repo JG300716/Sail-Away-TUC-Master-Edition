@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg1"
+   xml:space="preserve"
+   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   sodipodi:docname="rysunek.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     inkscape:zoom="2.7901515"
+     inkscape:cx="291.38203"
+     inkscape:cy="186.90741"
+     inkscape:window-width="1920"
+     inkscape:window-height="1001"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" /><defs
+     id="defs1" /><g
+     inkscape:label="Warstwa 1"
+     inkscape:groupmode="layer"
+     id="layer1"><path
+       style="fill:#ecac1d;stroke-width:0.264583"
+       id="path1"
+       d="m 56.835912,43.955419 c 0,0 5.954885,4.066246 5.762158,8.959107 -0.192727,4.892861 -5.837515,8.893982 -5.837515,8.893982 0,0 10.739995,0.124071 16.155257,-2.882157 5.415262,-3.006229 6.105022,-6.090122 6.105022,-6.090122 0,0 -0.05677,-2.847931 -6.140195,-5.938541 -6.083423,-3.09061 -16.044727,-2.942269 -16.044727,-2.942269 z"
+       sodipodi:nodetypes="czczczc"
+       inkscape:export-filename="orGate.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" /><path
+       style="fill:#ecac1d;stroke-width:0.264583"
+       id="path1-1"
+       d="m 91.188868,43.893122 -0.07536,17.853089 c 11.331699,0.03154 10.013009,-0.05578 14.411879,-0.06592 3.71276,-0.0086 7.89294,-4.2804 7.8484,-8.906358 -0.0469,-4.873259 -3.94656,-8.681552 -7.68242,-8.687723 -5.23993,-0.0087 -2.1262,0.159662 -14.502502,-0.193087 z"
+       sodipodi:nodetypes="ccsssc"
+       inkscape:export-filename="andGate.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" /></g></svg>
