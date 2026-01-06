@@ -84,6 +84,7 @@ namespace Game.Scripts
             else
             {
                 SceneManager.UnloadSceneAsync(1);
+                LightManager.Instance.SwitchLight();
                 UIManager.ShowCanvasGroup(UIManager.Instance.steeringHudUI);
                 Cursor.lockState = CursorLockMode.Locked;
                 //Time.timeScale = 1f;
