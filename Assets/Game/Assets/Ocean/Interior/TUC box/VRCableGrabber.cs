@@ -55,11 +55,20 @@ public class VRCableGrabber : MonoBehaviour
 
             if (Physics.SphereCast(ray, grabRadius, out RaycastHit hit, maxGrabDistance, pickLayers))
             {
+                // 1?? PRIORYTET: czaszka (klik)
+                var skull = hit.collider.GetComponent<SkullRetreat>();
+                if (skull != null)
+                {
+                    skull.OnRayClicked();
+                    return; // NIE ³apiemy kabla
+                }
+
+                // 2?? jeœli to nie czaszka ? ³ap kabel
                 grabbedRb = hit.collider.attachedRigidbody;
                 if (grabbedRb != null)
                 {
                     isGrabbing = true;
-                grabDistance = hit.distance;
+                    grabDistance = hit.distance;
                 }
             }
         }
