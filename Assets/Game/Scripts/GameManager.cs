@@ -79,7 +79,6 @@ namespace Game.Scripts
         {
             if (!secondaryLoaded)
             {
-                Debug.Log("Chcę zejść pod pokład");
                 if (int.Parse(Instance.collectedChestCounterText.text) == 0)
                 {
                     return;
