@@ -50,7 +50,7 @@ MonoBehaviour:
   segmentPrefab: {fileID: 3605840624085887364, guid: f201218936aca4849a45a800b8d032c7, type: 3}
   startPoint: {fileID: 2692565924756897890}
   minSegments: 10
-  maxSegments: 20
+  maxSegments: 12
   segmentSpacing: 0.0002
   spring: 1000
   damper: 1000

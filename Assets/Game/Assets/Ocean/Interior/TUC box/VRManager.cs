@@ -1,38 +1,15 @@
 using UnityEngine;
 using UnityEngine.XR;
 using UnityEngine.XR.Management;
-using System.Collections;
 
 public class VRManager : MonoBehaviour
 {
     public GameObject xrOrigin;
     public GameObject flatPlayer;
 
-    void Start()
+    void Awake()
     {
-        StartCoroutine(InitXRMode());
-    }
-
-    IEnumerator InitXRMode()
-    {
-        // Poczekaj a¿ XR Management wystartuje
-        var xrManager = XRGeneralSettings.Instance.Manager;
-
-        if (xrManager == null)
-        {
-            SwitchToFlat();
-            yield break;
-        }
-
-        // Czekamy a¿ XR siê zainicjalizuje
-        while (!xrManager.isInitializationComplete)
-            yield return null;
-
-        // Czekamy a¿ headset stanie siê aktywny
-        while (!XRSettings.isDeviceActive)
-            yield return null;
-
-        SwitchToVR();
+        UpdateMode();
     }
 
     void Update()
@@ -42,6 +19,22 @@ public class VRManager : MonoBehaviour
         {
             SwitchToFlat();
         }
+    }
+
+    void UpdateMode()
+    {
+        if (IsVRReady())
+            SwitchToVR();
+        else
+            SwitchToFlat();
+    }
+
+    bool IsVRReady()
+    {
+        var xrManager = XRGeneralSettings.Instance?.Manager;
+        return xrManager != null &&
+               xrManager.isInitializationComplete &&
+               XRSettings.isDeviceActive;
     }
 
     void SwitchToVR()

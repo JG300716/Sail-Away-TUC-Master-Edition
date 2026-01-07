@@ -16,6 +16,10 @@ public class OrGateLogic : MonoBehaviour
         portB = inputB.GetComponent<LogicPort>();
         portOut = output.GetComponent<LogicPort>();
 
+        portA.origin = PortOrigin.Or;
+        portB.origin = PortOrigin.Or;
+        portOut.origin = PortOrigin.Or;
+
     }
     void Update()
     {
