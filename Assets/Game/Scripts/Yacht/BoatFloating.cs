@@ -7,7 +7,7 @@ namespace Game.Scripts
     public class BoatFloatingAdvanced : MonoBehaviour
     {
         [Header("Water Reference")]
-        [SerializeField] private WaterSurface waterSurface;
+        [SerializeField] public WaterSurface waterSurface;
         
         [Header("Floating Settings")]
         [SerializeField] private float floatStrength = 15f;
