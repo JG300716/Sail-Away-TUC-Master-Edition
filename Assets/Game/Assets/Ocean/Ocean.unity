@@ -1195,7 +1195,7 @@ PrefabInstance:
       value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 1246321479410414052, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
-      propertyPath: 'm_Materials.Array.data[20]'
+      propertyPath: m_Materials.Array.data[20]
       value: 
       objectReference: {fileID: 2100000, guid: 2441a8ed5ad4fa14aac37b9fe15dc813, type: 2}
     - target: {fileID: 1549049643566841334, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
@@ -1247,7 +1247,7 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2070016077787070320, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
-      propertyPath: 'm_Materials.Array.data[1]'
+      propertyPath: m_Materials.Array.data[1]
       value: 
       objectReference: {fileID: 2100000, guid: 2441a8ed5ad4fa14aac37b9fe15dc813, type: 2}
     - target: {fileID: 2404840081656458989, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
@@ -1702,11 +1702,11 @@ MonoBehaviour:
   moonPhaseRotation: 0
   earthshine: 1
   flareSize: 0.5
-  flareTint: {r: 1, g: 1, b: 1, a: 1}
+  flareTint: {r: 1, g: 0, b: 0, a: 1}
   flareFalloff: 2.05
   flareMultiplier: 0.05
   surfaceTexture: {fileID: 0}
-  surfaceTint: {r: 1, g: 1, b: 1, a: 1}
+  surfaceTint: {r: 1, g: 0, b: 0, a: 1}
   m_Distance: 1.5e+11
   m_UseRayTracedShadows: 0
   m_NumRayTracingSamples: 4
@@ -1904,7 +1904,7 @@ MonoBehaviour:
   priority: 0
   blendDistance: 0
   weight: 1
-  sharedProfile: {fileID: 11400000, guid: 6131738a61ed3964592411d5851761c1, type: 2}
+  sharedProfile: {fileID: 11400000, guid: 288d972ffebf5794b950ca691096ab08, type: 2}
 --- !u!4 &731614125
 Transform:
   m_ObjectHideFlags: 0
@@ -2346,8 +2346,8 @@ Mesh:
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
-  'm_MeshMetrics[0]': 1
-  'm_MeshMetrics[1]': 1
+  m_MeshMetrics[0]: 1
+  m_MeshMetrics[1]: 1
   m_MeshOptimizationFlags: 1
   m_StreamData:
     serializedVersion: 2
@@ -2550,8 +2550,8 @@ Mesh:
   m_CookingOptions: 30
   m_BakedConvexCollisionMesh: 
   m_BakedTriangleCollisionMesh: 
-  'm_MeshMetrics[0]': 1
-  'm_MeshMetrics[1]': 1
+  m_MeshMetrics[0]: 1
+  m_MeshMetrics[1]: 1
   m_MeshOptimizationFlags: 1
   m_StreamData:
     serializedVersion: 2
