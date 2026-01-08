@@ -3,6 +3,7 @@ using System.Collections;
 using Game.Scripts.UI;
 using Unity.VisualScripting;
 using Game.Scripts.Interface;
+using TMPro;
 
 
 namespace Game.Scripts.Controllers
@@ -13,6 +14,7 @@ namespace Game.Scripts.Controllers
         [SerializeField] ChestOpening ChestOpening;
         [SerializeField] private SkinnedMeshRenderer grotSkinnedMeshRenderer;
         [SerializeField] private SkinnedMeshRenderer fokSkinnedMeshRenderer;
+        [SerializeField] private TMP_Text unlockedChestCounterText;
         public override void Initialize()
         {
             if (ChestOpening.IsUnityNull()) Debug.LogError("ChestOpening reference is not set in LootBoxController.");
@@ -22,8 +24,11 @@ namespace Game.Scripts.Controllers
 
         public override void UpdateController()
         {
-            if (!Input.GetKeyDown(KeyCode.F1)) return;
+            int unlockedChestsAmount = int.Parse(unlockedChestCounterText.text);
+            if (!Input.GetKeyDown(KeyCode.F1) || unlockedChestsAmount == 0) return;
             if (ChestOpening.isRolling) return;
+            unlockedChestsAmount--;
+            unlockedChestCounterText.text = unlockedChestsAmount.ToString();
             UIManager.OpeningScreenShow();
             StartCoroutine(HandleChestOpeningCoroutine());
         }
