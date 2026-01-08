@@ -117,6 +117,7 @@ namespace Game.Scripts
             else
             {
                 MusicController.Instance.PlayMain();
+                LightManager.Instance.SwitchLight();
                 SceneManager.UnloadSceneAsync(2);
                 UIManager.ShowCanvasGroup(UIManager.Instance.steeringHudUI);
                 Cursor.lockState = CursorLockMode.Locked;

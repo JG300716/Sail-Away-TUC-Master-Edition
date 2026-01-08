@@ -290,17 +290,17 @@ public class CableSpawner : MonoBehaviour
 
     public void attachHole(LogicPort port)
     {
-        if(hole1 == null && hole2 != port)
+        if (hole1 == null && hole2 != port)
         {
             hole1 = port;
-            Debug.Log("first hole");
+            //Debug.Log("first hole");
             LinkPorts();
             return;
         }
         if (hole2 == null && hole1 != port)
         {
             hole2 = port;
-            Debug.Log("second hole");
+            //Debug.Log("second hole");
             LinkPorts();
             return;
         }
@@ -318,7 +318,7 @@ public class CableSpawner : MonoBehaviour
                 hole2.SetSignal(false);
             }
             hole1 = null;
-            Debug.Log("detached first hole");
+            //Debug.Log("detached first hole");
             return;
         }
         if (hole2 == port)
@@ -331,11 +331,11 @@ public class CableSpawner : MonoBehaviour
             }
             hole2.SetSignal(false);
             hole2 = null;
-            Debug.Log("detached second hole");
+            //Debug.Log("detached second hole");
             return;
         }
-        hole1.SetSignal(false);
-        hole1.SetSignal(false);
+        //hole1.SetSignal(false);
+        //hole2.SetSignal(false);
 
     }
 
@@ -351,12 +351,14 @@ public class CableSpawner : MonoBehaviour
             if (hole1.portType == PortType.Output && hole2.portType == PortType.Input)
             {
                 hole1.connectedPort = hole2;
-                Debug.Log($"Connected {hole1.portID} -> {hole2.portID}");
+                hole2.connectedPort = hole1;
+                //Debug.Log($"Connected {hole1.portID} -> {hole2.portID}");
             }
             else if (hole2.portType == PortType.Output && hole1.portType == PortType.Input)
             {
                 hole2.connectedPort = hole1;
-                Debug.Log($"Connected {hole2.portID} -> {hole1.portID}");
+                hole1.connectedPort = hole2;
+                //Debug.Log($"Connected {hole2.portID} -> {hole1.portID}");
             }
         }
     }
@@ -369,12 +371,14 @@ public class CableSpawner : MonoBehaviour
             if (hole1.portType == PortType.Output && hole2.portType == PortType.Input)
             {
                 hole1.connectedPort = null;
-                Debug.Log($"Disconnected {hole1.portID} -> {hole2.portID}");
+                hole2.connectedPort = null;
+                //Debug.Log($"Disconnected {hole1.portID} -> {hole2.portID}");
             }
             else if (hole2.portType == PortType.Output && hole1.portType == PortType.Input)
             {
                 hole2.connectedPort = null;
-                Debug.Log($"Disonnected {hole2.portID} -> {hole1.portID}");
+                hole1.connectedPort = null;
+                //Debug.Log($"Disonnected {hole2.portID} -> {hole1.portID}");
             }
         }
     }
