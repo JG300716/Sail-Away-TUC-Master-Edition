@@ -37,7 +37,7 @@ namespace Game.Scripts
         [SerializeField] private float forceVectorScale = 0.1f;
         [SerializeField] private bool enableDebugLogs = false;
 
-        private WindManager Wind => WindManager.Instance;
+        private UnifiedWindManager Wind => UnifiedWindManager.Instance;
         private Vector3 currentDriveForce;
         private Vector3 currentLateralForce;
         private Vector3 totalForce;
@@ -88,167 +88,53 @@ namespace Game.Scripts
             if (!isInitialized || Wind == null)
                 return;
 
-            // Pobierz wiatr prawdziwy
-            Vector3 windDirection = Wind.GetWindDirection3D();
+            Vector3 trueWindDir = Wind.GetWindDirection3D();
             float windSpeed = (float)Wind.WindSpeed;
 
-            if (windSpeed < 0.1f)
+            Vector3 apparentWind =
+                trueWindDir * windSpeed - yachtRigidbody.linearVelocity;
+
+            if (apparentWind.sqrMagnitude < 0.1f)
             {
                 ResetForces();
                 return;
             }
 
-            // POPRAWIONE: Oblicz wiatr pozorny
-            // Apparent wind = True wind + Boat wind (opposing boat movement)
-            Vector3 trueWind = windDirection * windSpeed;
-            Vector3 boatWind = -yachtRigidbody.linearVelocity; // Przeciwny kierunek do ruchu łódki
-            Vector3 apparentWind = trueWind + boatWind;
+            float apparentSpeed = apparentWind.magnitude;
+            Vector3 apparentDir = apparentWind.normalized;
 
-            // DODANE: Ogranicz maksymalny apparent wind (safety)
-            float maxApparentWind = 30f; // 30 m/s = ~108 km/h (realistyczne)
-            if (apparentWind.magnitude > maxApparentWind)
+            // === AERODYNAMIKA JAK W SAIL ===
+            var result = SailAeroCalculator.Calculate(
+                transform,
+                yachtRigidbody,
+                Wind,
+                apparentDir,
+                apparentSpeed,
+                sailArea,
+                6f,     // długość (albo parametr)
+                2f,     // szerokość
+                0f,
+                1.5f,
+                1.33f,
+                0.9f,
+                forceMultiplier
+            );
+
+            totalForce = result.force;
+
+            // === CLOTH TYLKO WIZUALNIE ===
+            if (applyWindToCloth)
             {
-                if (enableDebugLogs)
-                    Debug.LogWarning(
-                        $"[SailClothPhysics] Apparent wind clamped from {apparentWind.magnitude:F1} to {maxApparentWind}");
-                apparentWind = apparentWind.normalized * maxApparentWind;
+                sailCloth.externalAcceleration =
+                    apparentDir * apparentSpeed * windForceMultiplier;
             }
 
-            // Aplikuj wiatr na Cloth
-            if (applyWindToCloth && sailCloth != null)
-            {
-                ApplyWindToCloth(apparentWind);
-            }
-
-            // Oblicz siły aerodynamiczne
-            CalculateAerodynamicForces(apparentWind);
-
-            // Aplikuj siły na jacht
-            ApplyForcesToYacht();
+            currentDriveForce =
+                Vector3.Project(totalForce, yachtRigidbody.transform.forward);
+            currentLateralForce =
+                Vector3.Project(totalForce, yachtRigidbody.transform.right);
         }
 
-        /// <summary>
-        /// Aplikuje siłę wiatru bezpośrednio na Cloth (dla trzepotania)
-        /// </summary>
-        private void ApplyWindToCloth(Vector3 apparentWind)
-        {
-            Vector3 windAcceleration = apparentWind * windForceMultiplier;
-            sailCloth.externalAcceleration = windAcceleration;
-
-            // Losowe podmuchy dla realizmu
-            float gustStrength = Mathf.PerlinNoise(Time.time * 0.5f, 0) * 2f;
-            sailCloth.randomAcceleration = Vector3.one * gustStrength;
-        }
-
-        /// <summary>
-        /// Oblicza siły aerodynamiczne - uproszczona wersja
-        /// Traktuje żagiel jako pojedynczą płaszczyznę
-        /// </summary>
-        private void CalculateAerodynamicForces(Vector3 apparentWind)
-        {
-            if (apparentWind.sqrMagnitude < 0.01f)
-            {
-                ResetForces();
-                return;
-            }
-
-            // Normalna żagla w world space (bazowa)
-            Vector3 baseSailNormal = transform.TransformDirection(sailNormalDirection).normalized;
-
-            // KLUCZOWA ZMIANA: Sprawdź z której strony wieje wiatr
-            float dotProduct = Vector3.Dot(apparentWind.normalized, baseSailNormal);
-
-            // Automatycznie odwróć normalną jeśli wiatr przychodzi "z tyłu"
-            Vector3 effectiveSailNormal;
-            if (dotProduct < 0)
-            {
-                // Wiatr od drugiej strony - odwróć normalną
-                effectiveSailNormal = -baseSailNormal;
-                dotProduct = -dotProduct; // Teraz zawsze dodatni
-            }
-            else
-            {
-                // Wiatr od "normalnej" strony
-                effectiveSailNormal = baseSailNormal;
-            }
-
-            // Debug: Pokaż którą stronę używamy
-            if (enableDebugLogs && Time.frameCount % 120 == 0)
-            {
-                string side = dotProduct > 0 && effectiveSailNormal == baseSailNormal ? "RIGHT" : "LEFT";
-                Debug.Log($"[SailClothPhysics] Sail side: {side}, Dot: {dotProduct:F3}");
-            }
-
-            // Żagiel generuje siłę gdy wiatr uderza w niego
-            if (dotProduct > 0.01f)
-            {
-                // Dynamiczne ciśnienie: q = 0.5 * ρ * V²
-                float dynamicPressure = 0.5f * airDensity * apparentWind.sqrMagnitude;
-
-                // === SIŁA NOŚNA (LIFT) ===
-                Vector3 crossProduct = Vector3.Cross(effectiveSailNormal, apparentWind);
-
-                if (crossProduct.sqrMagnitude > 0.0001f)
-                {
-                    Vector3 liftDirection = Vector3.Cross(apparentWind, crossProduct).normalized;
-
-                    float liftMagnitude = dynamicPressure * sailArea * liftCoefficient * dotProduct * 0.5f;
-                    Vector3 lift = liftDirection * liftMagnitude;
-
-                    // === SIŁA OPORU (DRAG) ===
-                    float dragMagnitude = dynamicPressure * sailArea * dragCoefficient * dotProduct;
-                    Vector3 drag = apparentWind.normalized * dragMagnitude;
-
-                    // Suma
-                    totalForce = (lift + drag) * forceMultiplier;
-                }
-                else
-                {
-                    // Tylko drag
-                    float dragMagnitude = dynamicPressure * sailArea * dragCoefficient * dotProduct;
-                    totalForce = apparentWind.normalized * dragMagnitude * forceMultiplier;
-                }
-
-                // Clamp siły
-                if (totalForce.magnitude > maxForce)
-                {
-                    if (enableDebugLogs && Time.frameCount % 60 == 0)
-                    {
-                        Debug.LogWarning(
-                            $"[SailClothPhysics] Siła ograniczona! Było: {totalForce.magnitude:F0}N, Jest: {maxForce}N");
-                    }
-
-                    totalForce = totalForce.normalized * maxForce;
-                }
-            }
-            else
-            {
-                totalForce = Vector3.zero;
-            }
-
-            // Rozdziel na komponenty
-            Vector3 boatForward = yachtRigidbody.transform.forward;
-            Vector3 boatRight = yachtRigidbody.transform.right;
-
-            currentDriveForce = Vector3.Project(totalForce, boatForward);
-            currentLateralForce = Vector3.Project(totalForce, boatRight);
-        }
-
-        /// <summary>
-        /// Aplikuje obliczone siły na Rigidbody jachtu
-        /// </summary>
-        private void ApplyForcesToYacht()
-        {
-            if (totalForce.sqrMagnitude < 0.01f)
-                return;
-
-            Vector3 applicationPoint = sailAttachmentPoint.position;
-            // yachtRigidbody.AddForceAtPosition(totalForce, applicationPoint, ForceMode.Force);
-        }
-
-        /// <summary>
-        /// Resetuje wszystkie siły do zera
-        /// </summary>
         private void ResetForces()
         {
             totalForce = Vector3.zero;

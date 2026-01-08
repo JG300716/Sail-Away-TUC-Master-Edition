@@ -1,57 +1,46 @@
-﻿using UnityEngine;
+using UnityEngine;
 using Unity.VisualScripting;
 using UnityEngine.Splines;
 using Game.Scripts.Interface;
 
 namespace Game.Scripts.Controllers
 {
-    // public enum SelectedSail
-    // {
-    //     Grot,
-    //     Fok
-    // }
+    public enum SelectedSail
+    {
+        Grot,
+        Fok
+    }
     
-    public class YachtController : ControllerInterface
+    public class UnifiedYachtController : ControllerInterface
     {
         [Header("References")]
         [SerializeField] private YachtState yachtState;
-        [SerializeField] private Rigidbody yachtRigidbody; // DODANE
+        [SerializeField] private Rigidbody yachtRigidbody;
         [SerializeField] private CameraController cameraController;
         [SerializeField] private GameObject steeringWheelObject;
 
         [Header("Steering - PHYSICS BASED")]
-        [SerializeField] private float rudderTorque = 5f; // Moment obrotowy steru
-        [SerializeField] private float rudderStep = 30f; // Kąt steru [°/s]
+        [SerializeField] private float rudderTorque = 5f;
+        [SerializeField] private float rudderStep = 30f;
         [SerializeField] private float rudderMin = -30f;
         [SerializeField] private float rudderMax = 30f;
-        [SerializeField] private float minSpeedForSteering = 0.5f; // Minimalna prędkość do skręcania
+        [SerializeField] private float minSpeedForSteering = 0.5f;
         private float rudderAngle = 0f;
 
         [Header("Sail Control")]
-        [SerializeField] private float sailStep = 30f;
+        [SerializeField] private float sailStep = 30f; // stopni/sekundę
         private SelectedSail selectedSail = SelectedSail.Grot;
         
-        [Header("Cloth Sails")]
+        // Zapisane stany żagli (żeby nie resetowały)
+        private float grotLastAngle = 0f;
+        private float fokLastSplinePosition = 0.5f;
+        
+        [Header("Unified Sails")]
         [SerializeField] private GameObject grotClothObject;
         [SerializeField] private GameObject fokClothObject;
-        [SerializeField] private SailClothPhysics grotClothPhysics;
-        [SerializeField] private SailClothPhysics fokClothPhysics;
-        
-        [Header("Boom Control")]
-        [SerializeField] private ConfigurableJoint grotBoomJoint;
-        [SerializeField] private float boomMinAngle = -90f;
-        [SerializeField] private float boomMaxAngle = 90f;
-        
-        [Header("Fok Shot Path")]
-        [SerializeField] private SplineContainer splineComponent;
-        [SerializeField] private float speed = 0.02f;
-        [SerializeField] private float t;
-        [SerializeField] private Transform FokBone;
-        [SerializeField] private Transform FokShot;
-        private Transform splineTransform;
+        [SerializeField] private UnifiedSail grotSail; // Grot na joicie
+        [SerializeField] private UnifiedSail fokSail;  // Fok na spline
 
-        private float currentGrotBoomAngle = 0f;
-        private float currentFokBoomAngle = 0f;
         private UnifiedWindManager Wind => UnifiedWindManager.Instance;
         
         public override void Initialize()
@@ -60,23 +49,19 @@ namespace Game.Scripts.Controllers
             if (yachtRigidbody == null)
                 yachtRigidbody = GetComponent<Rigidbody>();
             
+            // Auto-znajdź UnifiedSail jeśli nie przypisane
+            if (grotSail == null && grotClothObject != null)
+                grotSail = grotClothObject.GetComponentInChildren<UnifiedSail>();
+            
+            if (fokSail == null && fokClothObject != null)
+                fokSail = fokClothObject.GetComponentInChildren<UnifiedSail>();
+            
             // Inicjalizacja - ukryj żagle
             if (grotClothObject != null)
                 grotClothObject.SetActive(false);
             
             if (fokClothObject != null)
                 fokClothObject.SetActive(false);
-            
-            if (grotClothPhysics != null)
-                grotClothPhysics.enabled = false;
-            
-            if (fokClothPhysics != null)
-                fokClothPhysics.enabled = false;
-                
-            if (splineComponent != null)
-                splineTransform = splineComponent.transform;
-            
-            InitializeBoomJoints();
         }
 
         public override void UpdateController()
@@ -84,12 +69,9 @@ namespace Game.Scripts.Controllers
             HandleSteeringInput();
             HandleSailStateInput();
             HandleSailSelectionInput();
-            HandleBoomAngleInput();
+            HandleSailAngleInput(); // ZMIENIONE z HandleBoomAngleInput
             HandleCameraSwap();
             LeaveYacht();
-            // Debug: Wiatr
-            if (Wind .IsUnityNull()) return;
-            var windDir = Quaternion.Euler(0, (float)Wind.WindDegree, 0) * Vector3.forward;
         }
 
         public override void FixedUpdateController(){}
@@ -119,34 +101,6 @@ namespace Game.Scripts.Controllers
             GameManager.UnsteerYacht();
         }
         
-        #region Boom Joint Setup
-        
-        private void InitializeBoomJoints()
-        {
-            if (grotBoomJoint != null)
-            {
-                SetSailJointLimits(grotBoomJoint, boomMinAngle, boomMaxAngle);
-                currentGrotBoomAngle = 0f;
-            }
-        }
-        
-        private void SetSailJointLimits(ConfigurableJoint joint, float minAngle, float maxAngle)
-        {
-            SoftJointLimit lowLimit = joint.lowAngularXLimit;
-            lowLimit.limit = minAngle;
-            joint.lowAngularXLimit = lowLimit;
-            
-            SoftJointLimit highLimit = joint.highAngularXLimit;
-            highLimit.limit = maxAngle;
-            joint.highAngularXLimit = highLimit;
-            
-            SoftJointLimit yLimit = joint.angularYLimit;
-            yLimit.limit = maxAngle;
-            joint.angularYLimit = yLimit;
-        }
-        
-        #endregion
-        
         #region Camera
         
         void HandleCameraSwap()
@@ -165,7 +119,6 @@ namespace Game.Scripts.Controllers
             float rudderBefore = rudderAngle;
             if (Input.GetKey(KeyCode.A)) rudderAngle -= rudderStep * Time.deltaTime;
             else if (Input.GetKey(KeyCode.D)) rudderAngle += rudderStep * Time.deltaTime;
-            //if (Input.GetKey(KeyCode.Space)) rudderAngle = 0f;
             
             rudderAngle = Mathf.Clamp(rudderAngle, rudderMin, rudderMax);
             steeringWheelObject?.transform.Rotate((rudderAngle - rudderBefore) * 10f, 0f, 0f);
@@ -173,16 +126,16 @@ namespace Game.Scripts.Controllers
 
         private void ApplyPhysicsSteering()
         {
-            if (yachtRigidbody .IsUnityNull()) return;
+            if (yachtRigidbody.IsUnityNull()) return;
     
             Vector3 velocity = yachtRigidbody.linearVelocity;
             Vector3 velocityXZ = new Vector3(velocity.x, 0, velocity.z);
             float forwardSpeed = velocityXZ.magnitude;
 
-            float speedFactor = Mathf.Max(forwardSpeed / 3f, 0.5f); // Min 50% mocy
+            float speedFactor = Mathf.Max(forwardSpeed / 3f, 0.5f);
             float torqueMagnitude = rudderAngle * rudderTorque * speedFactor; 
     
-            Vector3 torque = Vector3.up * torqueMagnitude; // USUŃ Mathf.Deg2Rad!
+            Vector3 torque = Vector3.up * torqueMagnitude;
             
             yachtRigidbody.AddTorque(torque, ForceMode.Force);
     
@@ -205,24 +158,27 @@ namespace Game.Scripts.Controllers
                     case YachtSailState.No_Sail:
                         yachtState.SailState = YachtSailState.Grot_Only;
                         
-                        if (!grotClothObject .IsUnityNull())
+                        if (!grotClothObject.IsUnityNull())
                             grotClothObject.SetActive(true);
                         
-                        if (!grotClothPhysics .IsUnityNull())
-                            grotClothPhysics.enabled = true;
-                        
-                        currentGrotBoomAngle = 0f;
-                        SetBoomTargetAngle(grotBoomJoint, currentGrotBoomAngle);
+                        // Przywróć zapisany stan
+                        if (grotSail != null && grotSail.CanControl())
+                        {
+                            grotSail.SetSailAngle(grotLastAngle);
+                        }
                         break;
                     
                     case YachtSailState.Grot_Only:
                         yachtState.SailState = YachtSailState.Grot_and_Fok;
                         
-                        if (!fokClothObject .IsUnityNull())
+                        if (!fokClothObject.IsUnityNull())
                             fokClothObject.SetActive(true);
                         
-                        if (!fokClothPhysics .IsUnityNull())
-                            fokClothPhysics.enabled = true;
+                        // Przywróć zapisany stan
+                        if (fokSail != null && fokSail.CanControl())
+                        {
+                            fokSail.SetSplinePosition(fokLastSplinePosition);
+                        }
                         break;
                 }
             }
@@ -232,23 +188,29 @@ namespace Game.Scripts.Controllers
                 switch (yachtState.SailState)
                 {
                     case YachtSailState.Grot_Only:
+                        // Zapisz stan przed wyłączeniem
+                        if (grotSail != null && grotSail.CanControl())
+                        {
+                            grotLastAngle = grotSail.GetCurrentAngle();
+                        }
+                        
                         yachtState.SailState = YachtSailState.No_Sail;
                         
-                        if (!grotClothObject .IsUnityNull())
+                        if (!grotClothObject.IsUnityNull())
                             grotClothObject.SetActive(false);
-                        
-                        if (!grotClothPhysics .IsUnityNull())
-                            grotClothPhysics.enabled = false;
                         break;
                     
                     case YachtSailState.Grot_and_Fok:
+                        // Zapisz stan przed wyłączeniem
+                        if (fokSail != null && fokSail.CanControl())
+                        {
+                            fokLastSplinePosition = fokSail.GetSplinePosition();
+                        }
+                        
                         yachtState.SailState = YachtSailState.Grot_Only;
                         
-                        if (!fokClothObject .IsUnityNull())
+                        if (!fokClothObject.IsUnityNull())
                             fokClothObject.SetActive(false);
-                        
-                        if (!fokClothPhysics .IsUnityNull())
-                            fokClothPhysics.enabled = false;
                         break;
                 }
             }
@@ -263,103 +225,71 @@ namespace Game.Scripts.Controllers
             if (Input.GetKeyDown(KeyCode.Alpha1))
             {
                 selectedSail = SelectedSail.Grot;
-                ObjectHighlightManager.HighlightObject(grotClothObject);
+                //ObjectHighlightManager.HighlightObject(grotClothObject);
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha2))
             {
                 selectedSail = SelectedSail.Fok;
-                ObjectHighlightManager.HighlightObject(fokClothObject);
+                //ObjectHighlightManager.HighlightObject(fokClothObject);
             }
         }
         
         #endregion
 
-        #region Boom Angle Q,E
+        #region Sail Angle Q,E - ZMIENIONE
         
-        private void HandleBoomAngleInput()
+        private void HandleSailAngleInput()
         {
             bool canAdjust = false;
-            ConfigurableJoint targetJoint = null;
-            bool angleChanged = false;
+            UnifiedSail targetSail = null;
 
             switch (selectedSail)
             {
                 case SelectedSail.Grot:
                     canAdjust = yachtState.SailState == YachtSailState.Grot_Only ||
                                 yachtState.SailState == YachtSailState.Grot_and_Fok;
-                    targetJoint = grotBoomJoint;
+                    targetSail = grotSail;
                     
-                    if (!canAdjust || targetJoint .IsUnityNull()) break;
+                    if (!canAdjust || targetSail.IsUnityNull() || !targetSail.CanControl()) 
+                        break;
                     
-                    float currentAngle = currentGrotBoomAngle;
-                    
+                    // Sterowanie grotem
                     if (Input.GetKey(KeyCode.Q))
                     {
-                        currentAngle -= sailStep * Time.deltaTime;
-                        angleChanged = true;
+                        targetSail.RotateSail(-sailStep * Time.deltaTime);
                     }
                     if (Input.GetKey(KeyCode.E))
                     {
-                        currentAngle += sailStep * Time.deltaTime;
-                        angleChanged = true;
+                        targetSail.RotateSail(sailStep * Time.deltaTime);
                     }
                     
-                    currentAngle = Mathf.Clamp(currentAngle, boomMinAngle, boomMaxAngle);
-                    
-                    if (angleChanged)
-                    {
-                        SetBoomTargetAngle(targetJoint, currentAngle);
-                        currentGrotBoomAngle = currentAngle;
-                    }
+                    // Zapisz aktualny stan
+                    grotLastAngle = targetSail.GetCurrentAngle();
                     break;
                     
                 case SelectedSail.Fok:
                     canAdjust = yachtState.SailState == YachtSailState.Fok_Only ||
                                 yachtState.SailState == YachtSailState.Grot_and_Fok;
+                    targetSail = fokSail;
                     
-                    if (!canAdjust) break;
+                    if (!canAdjust || targetSail.IsUnityNull() || !targetSail.CanControl()) 
+                        break;
                     
+                    // Fok używa spline movement
                     if (Input.GetKey(KeyCode.Q))
                     {
-                        t += Time.deltaTime * speed;
-                        angleChanged = true;
+                        targetSail.MoveAlongSpline(sailStep * 0.001f * Time.deltaTime);
                     }
                     if (Input.GetKey(KeyCode.E))
                     {
-                        t -= Time.deltaTime * speed;
-                        angleChanged = true;
+                        targetSail.MoveAlongSpline(-sailStep * 0.001f * Time.deltaTime);
                     }
-
-                    if (!angleChanged) break;
                     
-                    var points = splineComponent.Spline;
-                    if (FokShot.IsUnityNull() || points.Count == 0 || FokBone.IsUnityNull()) break;
-                    
-                    t = Mathf.Clamp01(t);
-                    
-                    FokShot.position = splineTransform.TransformPoint(points.EvaluatePosition(t));
-                    FokShot.rotation = Quaternion.LookRotation(splineTransform.TransformDirection(points.EvaluateTangent(t)), Vector3.up);
-                    
-                    FokBone.position = FokShot.position;
-                    FokBone.rotation = FokShot.rotation;
+                    // Zapisz aktualny stan
+                    fokLastSplinePosition = targetSail.GetSplinePosition();
                     break;
             }
-        }
-        
-        private void SetBoomTargetAngle(ConfigurableJoint joint, float angle)
-        {
-            if (joint.IsUnityNull()) return;
-            
-            float tolerance = 3f;
-            
-            SoftJointLimit lowLimit = joint.lowAngularXLimit;
-            lowLimit.limit = angle - tolerance;
-            joint.lowAngularXLimit = lowLimit;
-            
-            SoftJointLimit highLimit = joint.highAngularXLimit;
-            highLimit.limit = angle + tolerance;
-            joint.highAngularXLimit = highLimit;
         }
         
         #endregion

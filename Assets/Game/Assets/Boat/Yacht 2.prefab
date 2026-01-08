@@ -861,9 +861,9 @@ MonoBehaviour:
   Acceleration: 0
   V_current: 0
   Deg_from_north: 0
-  SailState: 0
-  yachtPhysics: {fileID: 6926251009504080931}
   isDriving: 1
+  SailState: 0
+  yachtPhysics: {fileID: 0}
 --- !u!114 &314379749830948263
 MonoBehaviour:
   m_ObjectHideFlags: 0
