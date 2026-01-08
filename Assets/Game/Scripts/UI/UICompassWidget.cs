@@ -9,7 +9,7 @@ namespace Game.Scripts
     {
         [Header("References")]
         [SerializeField] private YachtState yachtState;
-        [SerializeField] private YachtPhysics yachtPhysics;
+        [SerializeField] private FinalPhysics yachtPhysics;
 
         [Header("UI Elements")]
         [SerializeField] private RectTransform compassCircle; // okrąg kompasu
@@ -31,7 +31,7 @@ namespace Game.Scripts
         [SerializeField] private Color fastColor = Color.green;
 
         private bool initialized = false;
-        private WindManager Wind => WindManager.Instance;
+        private UnifiedWindManager Wind => UnifiedWindManager.Instance;
 
         void Start()
         {

@@ -708,7 +708,6 @@ GameObject:
   - component: {fileID: 2486381023074892474}
   - component: {fileID: 2656801989082756645}
   - component: {fileID: 2553105284427636543}
-  - component: {fileID: 6926251009504080931}
   - component: {fileID: 4862520016500657067}
   - component: {fileID: 314379749830948263}
   m_Layer: 0
@@ -824,28 +823,6 @@ MonoBehaviour:
   clampAngle: 80
   mainCamera: {fileID: 0}
   topCamera: {fileID: 0}
---- !u!114 &6926251009504080931
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3808689921128561914}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d873705798d2bc4794b65dc7b0c498d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  useClothPhysics: 1
-  grotCloth: {fileID: 932108766427263383}
-  fokCloth: {fileID: 0}
-  rhoWater: 1025
-  boatMass: 2700
-  wettedArea: 10
-  dragCoeffHull: 0.009
-  maxSpeed: 15
-  boatModel: {fileID: 56703497118047586}
-  enableDebugLogs: 0
 --- !u!114 &4862520016500657067
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -861,9 +838,9 @@ MonoBehaviour:
   Acceleration: 0
   V_current: 0
   Deg_from_north: 0
-  SailState: 0
-  yachtPhysics: {fileID: 6926251009504080931}
   isDriving: 1
+  SailState: 0
+  yachtPhysics: {fileID: 0}
 --- !u!114 &314379749830948263
 MonoBehaviour:
   m_ObjectHideFlags: 0

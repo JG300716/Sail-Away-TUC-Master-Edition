@@ -15,7 +15,7 @@ namespace Game.Scripts.Weather
         [SerializeField] private DirectionalLight sunLight;
 
         // TODO : Wind Manager implementation
-        [SerializeField] WindManager windManager;
+        [SerializeField] private UnifiedWindManager windManager => UnifiedWindManager.Instance;
         private Camera mainCamera;
         
         [SerializeField] private Volume globalVolume;
@@ -66,8 +66,8 @@ namespace Game.Scripts.Weather
             {
                 globalVolume.profile = dayProfile;
             }
-            if (windManager.IsUnityNull())
-            
+
+            if (windManager.IsUnityNull()) return;
             weatherCheckTimer = weatherCheckInterval;
         }
         void Update()
