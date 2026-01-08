@@ -125,27 +125,6 @@ namespace Game.Scripts
             return acceleration;
         }
 
-        void OnDrawGizmos()
-        {
-            if (!Application.isPlaying || !initialized)
-                return;
-            
-            // Rysuj wektor siły napędowej
-            if (grotCloth != null && grotCloth.enabled)
-            {
-                Vector3 grotForce = grotCloth.GetTotalForce();
-                Gizmos.color = Color.green;
-                Gizmos.DrawLine(transform.position, transform.position + grotForce * 0.01f);
-            }
-            
-            if (fokCloth != null && fokCloth.enabled)
-            {
-                Vector3 fokForce = fokCloth.GetTotalForce();
-                Gizmos.color = Color.blue;
-                Gizmos.DrawLine(transform.position, transform.position + fokForce * 0.01f);
-            }
-        }
-
         [ContextMenu("Log Physics State")]
         private void LogPhysicsState()
         {

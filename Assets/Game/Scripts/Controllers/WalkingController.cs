@@ -76,7 +76,7 @@ namespace Game.Scripts.Controllers
             Vector3 targetPos = transform.position + moveDir * (speed * Time.deltaTime);
 
             Ray ray = new Ray(new Vector3(targetPos.x, 5f, targetPos.z), Vector3.down);
-            Debug.DrawLine(ray.origin, ray.origin + ray.direction * 10f, Color.red, 1f);
+            //Debug.DrawLine(ray.origin, ray.origin + ray.direction * 10f, Color.red, 1f);
             
             if (Physics.Raycast(ray, out RaycastHit hit, 10f, meshLayer))
             {
