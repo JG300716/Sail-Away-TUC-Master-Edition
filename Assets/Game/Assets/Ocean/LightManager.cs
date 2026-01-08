@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LightManager : MonoBehaviour
+public class LightManager : SingletonInterface<LightManager>
 {
     public static LightManager Instance;
 
@@ -9,7 +9,7 @@ public class LightManager : MonoBehaviour
     public GameObject lightB;
 
     public int mode = 0;
-    // 0 - wieczór - razem daj¹ taki fajny efekt
+    // 0 - wieczï¿½r - razem dajï¿½ taki fajny efekt
     // 1 - noc
     // 2 - blood moon
 
