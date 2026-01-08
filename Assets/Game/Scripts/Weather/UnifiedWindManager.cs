@@ -331,26 +331,4 @@ public class UnifiedWindManager : SingletonInterface<UnifiedWindManager>
         
         return Mathf.Repeat((float)(current + Mathf.Sign(delta) * maxDelta), 360f);
     }
-    
-    void OnGUI()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.fontSize = 14;
-        style.alignment = TextAnchor.UpperLeft;
-        
-        string info = $"Wind System\n" +
-                      $"Direction: {WindDegree:F1}°\n" +
-                      $"Speed: {WindSpeed:F1} m/s\n" +
-                      $"Target Speed: {TargetWindSpeed:F1} m/s\n" +
-                      $"Target Dir: {TargetWindDegree:F1}°\n";
-        
-        if (enableManualControls)
-        {
-            info += $"\nManual Controls:\n" +
-                    $"← → : Rotate wind\n" +
-                    $"↑ ↓ : Change speed";
-        }
-        
-        GUI.Box(new Rect(10, 10, 220, 150), info, style);
-    }
 }

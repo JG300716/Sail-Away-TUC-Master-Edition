@@ -926,7 +926,139 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6585292915922630274, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
   m_PrefabInstance: {fileID: 6280070034088341427}
   m_PrefabAsset: {fileID: 0}
---- !u!43 &551568648
+--- !u!1 &731614123
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 731614125}
+  - component: {fileID: 731614124}
+  m_Layer: 0
+  m_Name: Global Volume
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &731614124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731614123}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 288d972ffebf5794b950ca691096ab08, type: 2}
+--- !u!4 &731614125
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 731614123}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -68.6911, y: 23.516127, z: 61.778034}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1105971469
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1105971470}
+  - component: {fileID: 1105971471}
+  m_Layer: 0
+  m_Name: FokScript
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1105971470
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105971469}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1413300566}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1105971471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1105971469}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b755dc2c30ca14aa45bf96729b9ff6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sailLength: 1.5
+  sailWidth: 0.1
+  sailColor: {r: 1, g: 1, b: 1, a: 0.8}
+  sailArea: 15
+  aspectRatio: 0
+  maxCoefficientOfLift: 1.5
+  maxCoefficientOfDrag: 1.33
+  forceMultiplier: 10
+  torqueMultiplier: 0.1
+  oswaldEfficiency: 0.9
+  minAngle: -180
+  maxAngle: 0
+  isOnJoint: 0
+  autoDetectJoint: 0
+  jointInitialOffset: 0
+  jointDirection: 1
+  useSplineMovement: 1
+  splineContainer: {fileID: 6280070034088341429}
+  splinePosition: 0.5
+  controlBone: {fileID: 6280070034088341431}
+  secondaryBone: {fileID: 6280070034088341430}
+  visualAngleOffset: 0
+  autoCalculateVisualOffset: 0
+  targetRestDirection: {x: 0, y: 0, z: 1}
+  anchorPointLocal: {x: 0, y: 0}
+  useClothVisuals: 0
+  sailCloth: {fileID: 1776553320}
+  clothWindForceMultiplier: 1
+  clothGustStrength: 0
+  clothGustSpeed: 0
+  maxApparentWind: 30
+  yachtRigidbody: {fileID: 0}
+  drawGizmos: 1
+  drawAngleRanges: 1
+--- !u!137 &1153220752 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8287374204850205960, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
+  m_PrefabInstance: {fileID: 6280070034088341427}
+  m_PrefabAsset: {fileID: 0}
+--- !u!43 &1268818488
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1091,143 +1223,176 @@ Mesh:
     offset: 0
     size: 0
     path: 
---- !u!1 &731614123
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 731614125}
-  - component: {fileID: 731614124}
-  m_Layer: 0
-  m_Name: Global Volume
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &731614124
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 731614123}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IsGlobal: 1
-  priority: 0
-  blendDistance: 0
-  weight: 1
-  sharedProfile: {fileID: 11400000, guid: 288d972ffebf5794b950ca691096ab08, type: 2}
---- !u!4 &731614125
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 731614123}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -68.6911, y: 23.516127, z: 61.778034}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1105971469
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1105971470}
-  - component: {fileID: 1105971471}
-  m_Layer: 0
-  m_Name: FokScript
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1105971470
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1105971469}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1413300566}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1105971471
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1105971469}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14b755dc2c30ca14aa45bf96729b9ff6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  sailLength: 1.5
-  sailWidth: 0.1
-  sailColor: {r: 1, g: 1, b: 1, a: 0.8}
-  sailArea: 15
-  aspectRatio: 0
-  maxCoefficientOfLift: 1.5
-  maxCoefficientOfDrag: 1.33
-  forceMultiplier: 10
-  torqueMultiplier: 0.1
-  oswaldEfficiency: 0.9
-  minAngle: -180
-  maxAngle: 0
-  isOnJoint: 0
-  autoDetectJoint: 0
-  jointInitialOffset: 0
-  jointDirection: 1
-  useSplineMovement: 1
-  splineContainer: {fileID: 6280070034088341429}
-  splinePosition: 0.5
-  controlBone: {fileID: 6280070034088341431}
-  secondaryBone: {fileID: 6280070034088341430}
-  visualAngleOffset: 0
-  autoCalculateVisualOffset: 0
-  targetRestDirection: {x: 0, y: 0, z: 1}
-  anchorPointLocal: {x: 0, y: 0}
-  useClothVisuals: 0
-  sailCloth: {fileID: 1776553320}
-  clothWindForceMultiplier: 1
-  clothGustStrength: 0
-  clothGustSpeed: 0
-  maxApparentWind: 30
-  yachtRigidbody: {fileID: 0}
-  drawGizmos: 1
-  drawAngleRanges: 1
---- !u!137 &1153220752 stripped
-SkinnedMeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 8287374204850205960, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
-  m_PrefabInstance: {fileID: 6280070034088341427}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1413300566 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8681659579261297299, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
   m_PrefabInstance: {fileID: 6280070034088341427}
   m_PrefabAsset: {fileID: 0}
+--- !u!43 &1452812993
+Mesh:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  serializedVersion: 11
+  m_SubMeshes:
+  - serializedVersion: 2
+    firstByte: 0
+    indexCount: 87
+    topology: 0
+    baseVertex: 0
+    firstVertex: 0
+    vertexCount: 29
+    localAABB:
+      m_Center: {x: 0.0395813, y: 1.0253445, z: 0.030605316}
+      m_Extent: {x: 7.9455147, y: 1.0253445, z: 2.417881}
+  m_Shapes:
+    vertices: []
+    shapes: []
+    channels: []
+    fullWeights: []
+  m_BindPose: []
+  m_BoneNameHashes: 
+  m_RootBoneNameHash: 0
+  m_BonesAABB: []
+  m_VariableBoneCountWeights:
+    m_Data: 
+  m_MeshCompression: 0
+  m_IsReadable: 1
+  m_KeepVertices: 1
+  m_KeepIndices: 1
+  m_IndexFormat: 0
+  m_IndexBuffer: 000001000200000003000100000004000300000005000400000006000500070006000000080006000700090008000a000900060008000b00060009000c0006000b000c000d0006000e000d000c000e000f000d000e0010000f0010000e00110012000300040012001300030014001300120015001300140015001600130015001700160018001700150019001700180019001a0017001b001a0019001c001a001b001c0010001a0010001c000f00
+  m_VertexData:
+    serializedVersion: 3
+    m_VertexCount: 29
+    m_Channels:
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 12
+      format: 0
+      dimension: 3
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    - stream: 0
+      offset: 0
+      format: 0
+      dimension: 0
+    m_DataSize: 696
+    _typelessdata: a0d390c04ca2dc3fe0e917407e8e233d20c87fbf24cb2bbc0057353ecc48df3f20021640ef48943be2f27fbf58a09f3c002215c01275e03f00b41c404bb7ba3bb69b79bf7051633ef0242b405342e23f008c00409d3f2f3c15f97fbf0b2821bc209c90bfaf11e03fc07ede3f9d06673ba3fe7fbf2eaab0bb909c4ac01df0df3f80e2dd3fa9683d3c7ef37fbf3b0c81bc98e194c01de3da3f0078dc3f4988cc3eabaf6abfd7f7043a1042afc08456a53f40c9ad3fdabf083ff0354abfee399abed0f0d0c043077b3f00ef443f06aad33ee8e364bf9066303e68fdfcc00000000080d538bf6b07fe3e91445ebf2d8d143b80d2fcc0000000000004123f8bf6143f393250bfd78b1abbc0e6cfc0be907d3f80d94cbf566ee63e6ecb63bf6c169abdf081adc0c60ea73fc05fa6bfc4a4c43ee2386cbfebd5033dd89994c06146db3f00c0d7bf8c3bbc3eeb106ebfd59bd03be8ae90c0baa6dc3fc03317c04151483d5e9a7fbff7e4d93cc0663cc0532ae03f008de8bf3d47e23b6cfe7fbf69134c3ae0a6354028c3e23f602c03c0f031133cc3ec7fbf9052b83c0084f7be0ea5df3f20c918c02ea1c03b2df87fbf40266a3c604ecb3f6a9adf3f4061ba3fa116af3c42ec7fbfc888453c20f8af40d6a8ee3f0061ac3f6535323de9c17fbf20e4863a509b8840d517e83f80c7723f84370a3d0cc77fbf6573c83c0007aa409539ed3f80182a3fd50c913d6e5b7fbf02ad0139284dfe40c22403400094e23e3db3973df14b7fbf975f5cbae885ff407d3e0340003ce1be89fc903d8e5b7fbfaaaf133a5831aa409542ed3f806127bf07d29a3dbb317fbf7699c3bcc8518840c90de83f00e57bbf4bfe533d8c9e7fbf543e8cbc0809b340c27aef3f4051a6bfc2ef0d3d6cd57fbfd46b223c80a4bc3fc17ddf3f400fc3bfd9fb123dba657ebfc6add8bd0052a33eeb3bdf3fc033d6bf9443823cf8f07fbff9076bbc
+  m_CompressedMesh:
+    m_Vertices:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UV:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Normals:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Tangents:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Weights:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_NormalSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_TangentSigns:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_FloatColors:
+      m_NumItems: 0
+      m_Range: 0
+      m_Start: 0
+      m_Data: 
+      m_BitSize: 0
+    m_BoneIndices:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_Triangles:
+      m_NumItems: 0
+      m_Data: 
+      m_BitSize: 0
+    m_UVInfo: 0
+  m_LocalAABB:
+    m_Center: {x: 0.0395813, y: 1.0253445, z: 0.030605316}
+    m_Extent: {x: 7.9455147, y: 1.0253445, z: 2.417881}
+  m_MeshUsageFlags: 0
+  m_CookingOptions: 30
+  m_BakedConvexCollisionMesh: 
+  m_BakedTriangleCollisionMesh: 
+  'm_MeshMetrics[0]': 1
+  'm_MeshMetrics[1]': 1
+  m_MeshOptimizationFlags: 1
+  m_StreamData:
+    serializedVersion: 2
+    offset: 0
+    size: 0
+    path: 
 --- !u!114 &1555855101 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5536883216519517511, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
@@ -1478,13 +1643,13 @@ MonoBehaviour:
     speedMultiplier: 0
     debugColor: {r: 1, g: 0, b: 0, a: 0.5}
   deadZoneFadeWidth: 10
-  minWindSpeed: 0
-  maxWindSpeed: 15
-  WindSpeed: 5
+  minWindSpeed: 2
+  maxWindSpeed: 6
+  WindSpeed: 2
   TargetWindSpeed: 0
   minWindDirectionDeg: 0
-  maxWindDirectionDeg: 360
-  WindDegree: 0
+  maxWindDirectionDeg: 180
+  WindDegree: 30
   TargetWindDegree: 0
   steadyWindChangeInterval: 0.1
   windSpeedStep: 0.5
@@ -2037,7 +2202,7 @@ PrefabInstance:
     - target: {fileID: 1175002728092701891, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 551568648}
+      objectReference: {fileID: 1452812993}
     - target: {fileID: 3225600397287817683, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
       propertyPath: yachtPhysics
       value: 
@@ -2065,7 +2230,7 @@ PrefabInstance:
     - target: {fileID: 7310596710435034920, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 551568648}
+      objectReference: {fileID: 1452812993}
     - target: {fileID: 7774445501091643359, guid: 2cf499b80cbf4d54d9612f6669076be1, type: 3}
       propertyPath: m_Enabled
       value: 0
