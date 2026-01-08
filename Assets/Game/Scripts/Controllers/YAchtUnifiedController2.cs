@@ -18,6 +18,7 @@ namespace Game.Scripts.Controllers
         [SerializeField] private float rudderStep = 30f;
         [SerializeField] private float rudderMin = -30f;
         [SerializeField] private float rudderMax = 30f;
+        [SerializeField] private float minSpeedForSteering = 0.5f; // Minimalna prędkość do skręcania
         private float rudderAngle;
 
         [Header("Sail Control")]
@@ -37,6 +38,11 @@ namespace Game.Scripts.Controllers
         [SerializeField] private Transform fokShot;
         private float fokT = 0.5f;
         private Transform splineTransform;
+        
+        [Header("Stability (Anti-Capsizing)")]
+        [SerializeField] private bool enableStabilization = true;
+        [SerializeField] private float stabilizationTorque = 50f;
+        [SerializeField] private float maxRollAngle = 25f; // Maksymalny przechył przed korekcją
 
         public override void Initialize()
         {
@@ -66,6 +72,9 @@ namespace Game.Scripts.Controllers
         public override void FixedUpdateController()
         {
             ApplyPhysicsSteering();
+            
+            if (enableStabilization)
+                ApplyStabilization();
         }
 
         public override void EnableController()
@@ -98,11 +107,71 @@ namespace Game.Scripts.Controllers
             if (yachtRigidbody.IsUnityNull()) return;
 
             Vector3 v = yachtRigidbody.linearVelocity;
-            float speed = new Vector3(v.x, 0, v.z).magnitude;
-            float factor = Mathf.Max(speed / 3f, 0.5f);
+            Vector3 vXZ = new Vector3(v.x, 0, v.z);
+            float speed = vXZ.magnitude;
+            
+            // Ster działa tylko przy ruchu
+            if (speed < minSpeedForSteering)
+            {
+                // Opcjonalnie: resetuj rudderAngle jeśli nie ma prędkości
+                // rudderAngle = Mathf.Lerp(rudderAngle, 0f, Time.fixedDeltaTime * 2f);
+                return;
+            }
 
-            yachtRigidbody.AddTorque(Vector3.up * rudderAngle * rudderTorque * factor);
-            yachtState.Deg_from_north = transform.eulerAngles.y;
+            // Torque skalowany prędkością (szybciej = łatwiej skręcić)
+            float speedFactor = Mathf.Min(speed / 5f, 1f); // Max przy 5 m/s
+            float torqueMagnitude = rudderAngle * rudderTorque * speedFactor;
+            
+            yachtRigidbody.AddTorque(Vector3.up * torqueMagnitude, ForceMode.Force);
+
+            if (!yachtState.IsUnityNull())
+                yachtState.Deg_from_north = transform.eulerAngles.y;
+        }
+        
+        private void ApplyStabilization()
+        {
+            // Pobierz obecną rotację
+            Vector3 eulerAngles = transform.eulerAngles;
+            
+            // Normalizuj do -180..180
+            float rollAngle = eulerAngles.z;
+            if (rollAngle > 180f) rollAngle -= 360f;
+            
+            float pitchAngle = eulerAngles.x;
+            if (pitchAngle > 180f) pitchAngle -= 360f;
+            
+            // Siła stabilizacyjna dla przechyłu (roll) - oś Z
+            if (Mathf.Abs(rollAngle) > 1f)
+            {
+                float rollTorque = -rollAngle * stabilizationTorque * Time.fixedDeltaTime;
+                
+                // Jeśli przekroczono maxRollAngle, zwiększ siłę korekcyjną
+                if (Mathf.Abs(rollAngle) > maxRollAngle)
+                {
+                    float excessRoll = Mathf.Abs(rollAngle) - maxRollAngle;
+                    rollTorque *= (1f + excessRoll / 10f); // Zwiększ siłę proporcjonalnie
+                }
+                
+                yachtRigidbody.AddTorque(Vector3.forward * rollTorque, ForceMode.Force);
+            }
+            
+            // Siła stabilizacyjna dla kołysania (pitch) - oś X
+            if (Mathf.Abs(pitchAngle) > 1f)
+            {
+                float pitchTorque = -pitchAngle * stabilizationTorque * 0.5f * Time.fixedDeltaTime;
+                yachtRigidbody.AddTorque(Vector3.right * pitchTorque, ForceMode.Force);
+            }
+            
+            // Dodatkowo: tłumienie prędkości kątowej dla stabilności
+            Vector3 angularVel = yachtRigidbody.angularVelocity;
+            
+            // Tłum przechył (Z) i kołysanie (X), ale NIE obrót (Y)
+            float dampingFactor = 0.95f; // 5% tłumienia na klatkę
+            yachtRigidbody.angularVelocity = new Vector3(
+                angularVel.x * dampingFactor,
+                angularVel.y, // Nie tłum obrotu wokół Y (yaw)
+                angularVel.z * dampingFactor
+            );
         }
 
         #endregion
@@ -212,22 +281,22 @@ namespace Game.Scripts.Controllers
 
         #endregion
         
+        #region Physics API
+        
         public void ApplyForce(Vector3 force)
         {
             force.y = 0; // Tylko XZ
-            yachtRigidbody.AddForce(force);
+            yachtRigidbody.AddForce(force, ForceMode.Force);
         }
     
         public void ApplyForce(Vector2 force)
         {
-            // Vector2 (x,y) -> Vector3 (x,0,z) - mapowanie 2D na XZ
-            yachtRigidbody.AddForce(new Vector3(force.x, 0, force.y));
+            yachtRigidbody.AddForce(new Vector3(force.x, 0, force.y), ForceMode.Force);
         }
     
         public void ApplyTorque(float torque)
         {
-            // Moment obrotowy wokół osi Y (vertical)
-            yachtRigidbody.AddTorque(Vector3.up * torque);
+            yachtRigidbody.AddTorque(Vector3.up * torque, ForceMode.Force);
         }
     
         public Vector3 GetVelocity()
@@ -237,13 +306,11 @@ namespace Game.Scripts.Controllers
     
         public Vector2 GetVelocity2D()
         {
-            // Vector3 (x,y,z) -> Vector2 (x,z) - mapowanie XZ na 2D
             return new Vector2(yachtRigidbody.linearVelocity.x, yachtRigidbody.linearVelocity.z);
         }
     
         public float GetAngularVelocity()
         {
-            // Tylko komponent Y (obrót wokół vertical)
             return yachtRigidbody.angularVelocity.y;
         }
     
@@ -254,30 +321,30 @@ namespace Game.Scripts.Controllers
 
         public void ApplyTorque(Vector3 torqueVector)
         {
-            yachtRigidbody.AddTorque(torqueVector);
+            yachtRigidbody.AddTorque(torqueVector, ForceMode.Force);
         }
 
         public void ApplyTorquePitch(float torque)
         {
-            yachtRigidbody.AddTorque(Vector3.right * torque);
+            yachtRigidbody.AddTorque(Vector3.right * torque, ForceMode.Force);
         }
 
         public void ApplyTorqueRoll(float torque)
         {
-            yachtRigidbody.AddTorque(Vector3.forward * torque);
+            yachtRigidbody.AddTorque(Vector3.forward * torque, ForceMode.Force);
         }
     
         public Vector3 GetForwardDirection()
         {
-            // Forward w 3D to oś Z
             return transform.forward;
         }
     
         public Vector2 GetForwardDirection2D()
         {
-            // Vector3 (x,y,z) -> Vector2 (x,z) - mapowanie XZ na 2D
             Vector3 forward = transform.forward;
             return new Vector2(forward.x, forward.z);
         }
+        
+        #endregion
     }
 }

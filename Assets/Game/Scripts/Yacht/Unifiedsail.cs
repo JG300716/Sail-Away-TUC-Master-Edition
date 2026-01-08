@@ -560,186 +560,408 @@ public class UnifiedSail : MonoBehaviour
     /// <summary>
     /// Główna metoda obliczająca siły aerodynamiczne na żaglu
     /// </summary>
-    public SailForceResult CalculateWindForceWithTorque(Vector3 windDirection, float windSpeed)
+    // WKLEJ TO DO UnifiedSail.cs - ZASTĄP całą metodę CalculateWindForceWithTorque
+
+public SailForceResult CalculateWindForceWithTorque(Vector3 windDirection, float windSpeed)
+{
+    SailForceResult result = new SailForceResult();
+    
+    // Normalizuj wiatr (tylko XZ)
+    windDirection.y = 0;
+    if (windDirection.magnitude < 0.001f)
     {
-        SailForceResult result = new SailForceResult();
-        
-        // Normalizuj wiatr (tylko XZ)
-        windDirection.y = 0;
-        if (windDirection.magnitude < 0.001f)
-        {
-            result.force = Vector3.zero;
-            result.torqueMultiplier = 0f;
-            result.inDeadZone = true;
-            result.angleOfAttack = 0f;
-            return result;
-        }
-        windDirection.Normalize();
-        
-        // Kierunek żagla (chord line)
-        Vector3 sailChord = transform.forward;
-        sailChord.y = 0;
-        sailChord.Normalize();
-        
-        // Angle of Attack
-        float angleOfAttack = Vector3.SignedAngle(windDirection, sailChord, Vector3.up);
-        result.angleOfAttack = angleOfAttack;
-        
-        // === CHECK DEAD ZONE ===
-        if (windManager == null)
-        {
-            Debug.LogWarning("[UnifiedSail] WindManager not found!");
-            result.force = Vector3.zero;
-            result.torqueMultiplier = 0f;
-            result.inDeadZone = true;
-            return result;
-        }
-        
-        // Oblicz kąt jachtu względem wiatru
-        Vector3 yachtForward = Vector3.forward;
-        if (transform.parent != null)
-        {
-            yachtForward = transform.parent.forward;
-            yachtForward.y = 0;
-            yachtForward.Normalize();
-        }
-        
-        float yachtAngleToWind = Vector3.SignedAngle(yachtForward, windDirection, Vector3.up);
-        
-        // Pobierz efektywność z WindManager
-        float deadZoneFactor = windManager.GetEfficiencyMultiplier(yachtAngleToWind);
-        UnifiedWindManager.PointOfSail currentPos = windManager.GetPointOfSailForAngle(yachtAngleToWind);
-        
-        // inDeadZone
-        UnifiedWindManager.PointOfSail deadZoneCourse = windManager.pointsOfSail[windManager.pointsOfSail.Length - 1];
-        result.inDeadZone = (currentPos.name == deadZoneCourse.name);
-        
-        // === CALCULATE PARAMETERS ===
-        float area = sailArea > 0 ? sailArea : sailLength * sailWidth;
-        float AR = aspectRatio > 0 ? aspectRatio : (sailLength * sailLength) / area;
-        float airDensity = 1.225f;
-        float dynamicPressure = 0.5f * airDensity * windSpeed * windSpeed;
-        
-        // === DEAD ZONE HANDLING ===
-        if (deadZoneFactor <= 0f)
-        {
-            Vector3 yachtVelocity = Vector3.zero;
-            if (transform.parent != null && yachtRigidbody != null)
-            {
-                yachtVelocity = yachtRigidbody.linearVelocity;
-                yachtVelocity.y = 0;
-            }
-            
-            // Tylko hamowanie (deadZoneFactor = 0)
-            if (Mathf.Abs(deadZoneFactor) < 0.01f)
-            {
-                if (yachtVelocity.magnitude > 0.01f)
-                {
-                    Vector3 dragDir = -yachtVelocity.normalized;
-                    float dragMag = 0.5f * dynamicPressure * area;
-                    result.force = dragDir * dragMag * forceMultiplier;
-                }
-                else
-                {
-                    result.force = Vector3.zero;
-                }
-            }
-            else // Ujemna efektywność = hamowanie + cofanie
-            {
-                float reverseFactor = Mathf.Abs(deadZoneFactor);
-                
-                // 1. Drag hamujący
-                Vector3 dragForce = Vector3.zero;
-                if (yachtVelocity.magnitude > 0.01f)
-                {
-                    Vector3 dragDir = -yachtVelocity.normalized;
-                    float dragMag = reverseFactor * dynamicPressure * area;
-                    dragForce = dragDir * dragMag * forceMultiplier;
-                }
-                
-                // 2. Siła cofająca
-                Vector3 reverseDir = -windDirection;
-                float reverseMag = reverseFactor * dynamicPressure * area * 0.5f;
-                Vector3 reverseForce = reverseDir * reverseMag * forceMultiplier;
-                
-                result.force = dragForce + reverseForce;
-            }
-            
-            result.torqueMultiplier = 0f;
-            return result;
-        }
-        
-        // === NORMAL AERODYNAMIC FORCES ===
-        float absAngle = Mathf.Abs(angleOfAttack);
-        float CL = CalculateLiftCoefficient(absAngle);
-        float CD = CalculateDragCoefficient(absAngle, CL, AR);
-        
-        float liftMagnitude = CL * dynamicPressure * area;
-        float aeroDragMagnitude = CD * dynamicPressure * area;
-        
-        // Decompose to world space
-        Vector3 liftDirection = Vector3.Cross(windDirection, Vector3.up);
-        if (angleOfAttack < 0)
-            liftDirection = -liftDirection;
-        
-        Vector3 aeroDragDirection = windDirection;
-        
-        // Total force
-        Vector3 totalForce = (liftDirection * liftMagnitude + aeroDragDirection * aeroDragMagnitude) * deadZoneFactor;
-        
-        result.force = totalForce * forceMultiplier;
-        result.torqueMultiplier = deadZoneFactor;
-        
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        result.angleOfAttack = 0f;
+        return result;
+    }
+    windDirection.Normalize();
+    
+    // DEBUG 1: Po normalizacji
+    if (float.IsNaN(windDirection.x) || float.IsNaN(windDirection.z))
+    {
+        Debug.LogError($"[UnifiedSail] windDirection NaN after normalize! original magnitude was close to zero");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        result.angleOfAttack = 0f;
         return result;
     }
     
+    // Kierunek żagla (chord line)
+    Vector3 sailChord = transform.forward;
+    sailChord.y = 0;
+    sailChord.Normalize();
+    
+    // DEBUG 2: Sail chord
+    if (float.IsNaN(sailChord.x) || float.IsNaN(sailChord.z))
+    {
+        Debug.LogError($"[UnifiedSail] sailChord NaN! transform.forward={transform.forward}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        result.angleOfAttack = 0f;
+        return result;
+    }
+    
+    // Angle of Attack
+    float angleOfAttack = Vector3.SignedAngle(windDirection, sailChord, Vector3.up);
+    result.angleOfAttack = angleOfAttack;
+    
+    // DEBUG 3: Angle of attack
+    if (float.IsNaN(angleOfAttack))
+    {
+        Debug.LogError($"[UnifiedSail] angleOfAttack NaN! windDir={windDirection}, sailChord={sailChord}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        return result;
+    }
+    
+    // === CHECK DEAD ZONE ===
+    if (windManager == null)
+    {
+        Debug.LogWarning("[UnifiedSail] WindManager not found!");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        return result;
+    }
+    
+    // Oblicz kąt jachtu względem wiatru
+    Vector3 yachtForward = Vector3.forward;
+    if (transform.parent != null)
+    {
+        yachtForward = transform.parent.forward;
+        yachtForward.y = 0;
+        yachtForward.Normalize();
+    }
+    
+    float yachtAngleToWind = Vector3.SignedAngle(yachtForward, windDirection, Vector3.up);
+    
+    // Pobierz efektywność z WindManager
+    float deadZoneFactor = windManager.GetEfficiencyMultiplier(yachtAngleToWind);
+    UnifiedWindManager.PointOfSail currentPos = windManager.GetPointOfSailForAngle(yachtAngleToWind);
+    
+    // DEBUG 4: Dead zone factor
+    if (float.IsNaN(deadZoneFactor))
+    {
+        Debug.LogError($"[UnifiedSail] deadZoneFactor NaN! yachtAngleToWind={yachtAngleToWind}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        return result;
+    }
+    
+    // inDeadZone
+    UnifiedWindManager.PointOfSail deadZoneCourse = windManager.pointsOfSail[windManager.pointsOfSail.Length - 1];
+    result.inDeadZone = (currentPos.name == deadZoneCourse.name);
+    
+    // === CALCULATE PARAMETERS ===
+    float area = sailArea > 0 ? sailArea : sailLength * sailWidth;
+    float AR = aspectRatio > 0 ? aspectRatio : (sailLength * sailLength) / area;
+    
+    // DEBUG 5: Area and AR
+    if (area <= 0.001f)
+    {
+        Debug.LogError($"[UnifiedSail] Invalid area={area}! sailArea={sailArea}, sailLength={sailLength}, sailWidth={sailWidth}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        return result;
+    }
+    
+    if (float.IsNaN(AR) || float.IsInfinity(AR))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid AR={AR}! aspectRatio={aspectRatio}, sailLength={sailLength}, area={area}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        return result;
+    }
+    
+    float airDensity = 1.225f;
+    float dynamicPressure = 0.5f * airDensity * windSpeed * windSpeed;
+    
+    // DEBUG 6: Dynamic pressure
+    if (float.IsNaN(dynamicPressure) || float.IsInfinity(dynamicPressure))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid dynamicPressure={dynamicPressure}! windSpeed={windSpeed}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = 0f;
+        result.inDeadZone = true;
+        return result;
+    }
+    
+    // === DEAD ZONE HANDLING ===
+    if (deadZoneFactor <= 0f)
+    {
+        Vector3 yachtVelocity = Vector3.zero;
+        if (transform.parent != null && yachtRigidbody != null)
+        {
+            yachtVelocity = yachtRigidbody.linearVelocity;
+            yachtVelocity.y = 0;
+        }
+        
+        if (Mathf.Abs(deadZoneFactor) < 0.01f)
+        {
+            if (yachtVelocity.magnitude > 0.01f)
+            {
+                Vector3 dragDir = -yachtVelocity.normalized;
+                float dragMag = 0.5f * dynamicPressure * area;
+                result.force = dragDir * dragMag * forceMultiplier;
+            }
+            else
+            {
+                result.force = Vector3.zero;
+            }
+        }
+        else
+        {
+            float reverseFactor = Mathf.Abs(deadZoneFactor);
+            
+            Vector3 dragForce = Vector3.zero;
+            if (yachtVelocity.magnitude > 0.01f)
+            {
+                Vector3 dragDir = -yachtVelocity.normalized;
+                float dragMag = reverseFactor * dynamicPressure * area;
+                dragForce = dragDir * dragMag * forceMultiplier;
+            }
+            
+            Vector3 reverseDir = -windDirection;
+            float reverseMag = reverseFactor * dynamicPressure * area * 0.5f;
+            Vector3 reverseForce = reverseDir * reverseMag * forceMultiplier;
+            
+            result.force = dragForce + reverseForce;
+        }
+        
+        result.torqueMultiplier = 0f;
+        return result;
+    }
+    
+    // === NORMAL AERODYNAMIC FORCES ===
+    float absAngle = Mathf.Abs(angleOfAttack);
+    float CL = CalculateLiftCoefficient(absAngle);
+    float CD = CalculateDragCoefficient(absAngle, CL, AR);
+    
+    // DEBUG 7: Coefficients
+    if (float.IsNaN(CL) || float.IsInfinity(CL))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid CL={CL}! absAngle={absAngle}, maxCL={maxCoefficientOfLift}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = deadZoneFactor;
+        return result;
+    }
+    
+    if (float.IsNaN(CD) || float.IsInfinity(CD))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid CD={CD}! CL={CL}, AR={AR}, oswaldEff={oswaldEfficiency}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = deadZoneFactor;
+        return result;
+    }
+    
+    float liftMagnitude = CL * dynamicPressure * area;
+    float aeroDragMagnitude = CD * dynamicPressure * area;
+    
+    // DEBUG 8: Magnitudes
+    if (float.IsNaN(liftMagnitude) || float.IsInfinity(liftMagnitude))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid liftMagnitude={liftMagnitude}! CL={CL}, dynPress={dynamicPressure}, area={area}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = deadZoneFactor;
+        return result;
+    }
+    
+    if (float.IsNaN(aeroDragMagnitude) || float.IsInfinity(aeroDragMagnitude))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid aeroDragMagnitude={aeroDragMagnitude}! CD={CD}, dynPress={dynamicPressure}, area={area}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = deadZoneFactor;
+        return result;
+    }
+    
+    // Decompose to world space
+    Vector3 liftDirection = Vector3.Cross(windDirection, Vector3.up);
+    if (angleOfAttack < 0)
+        liftDirection = -liftDirection;
+    
+    // DEBUG 9: Lift direction
+    if (float.IsNaN(liftDirection.x) || float.IsNaN(liftDirection.z))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid liftDirection={liftDirection}! windDir={windDirection}, angleOfAttack={angleOfAttack}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = deadZoneFactor;
+        return result;
+    }
+    
+    Vector3 aeroDragDirection = windDirection;
+    
+    // Total force
+    Vector3 totalForce = (liftDirection * liftMagnitude + aeroDragDirection * aeroDragMagnitude) * deadZoneFactor;
+    
+    // DEBUG 10: Before force multiplier
+    if (float.IsNaN(totalForce.x) || float.IsNaN(totalForce.z) || float.IsInfinity(totalForce.magnitude))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid totalForce BEFORE forceMultiplier! " +
+                      $"totalForce={totalForce}, " +
+                      $"liftDir={liftDirection}, liftMag={liftMagnitude}, " +
+                      $"dragDir={aeroDragDirection}, dragMag={aeroDragMagnitude}, " +
+                      $"deadZoneFactor={deadZoneFactor}");
+        result.force = Vector3.zero;
+        result.torqueMultiplier = deadZoneFactor;
+        return result;
+    }
+    
+    result.force = totalForce * forceMultiplier;
+    
+    // DEBUG 11: After force multiplier
+    if (float.IsNaN(result.force.x) || float.IsNaN(result.force.z) || float.IsInfinity(result.force.magnitude))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid FINAL force! " +
+                      $"force={result.force}, " +
+                      $"totalForce={totalForce}, " +
+                      $"forceMultiplier={forceMultiplier}");
+        result.force = Vector3.zero;
+    }
+    
+    result.torqueMultiplier = deadZoneFactor;
+    
+    return result;
+}
+    
     float CalculateLiftCoefficient(float absAngle)
+{
+    // Safety check
+    if (float.IsNaN(absAngle) || float.IsInfinity(absAngle))
     {
-        if (absAngle < 15f)
-            return (maxCoefficientOfLift / 15f) * absAngle;
-        else if (absAngle < 30f)
-        {
-            float t = (absAngle - 15f) / 15f;
-            return Mathf.Lerp(maxCoefficientOfLift, maxCoefficientOfLift * 0.53f, t);
-        }
-        else if (absAngle < 90f)
-        {
-            float t = (absAngle - 30f) / 60f;
-            return Mathf.Lerp(maxCoefficientOfLift * 0.53f, maxCoefficientOfLift * 0.067f, t);
-        }
-        else
-            return maxCoefficientOfLift * 0.067f;
+        Debug.LogError($"[UnifiedSail] CalculateLiftCoefficient: Invalid absAngle={absAngle}");
+        return 0f;
     }
     
-    float CalculateDragCoefficient(float absAngle, float CL, float AR)
+    if (maxCoefficientOfLift <= 0.001f)
     {
-        // Induced drag
-        float inducedDrag = (CL * CL) / (Mathf.PI * oswaldEfficiency * AR);
-        
-        // Parasitic drag
-        float parasiticDrag;
-        if (absAngle < 15f)
-            parasiticDrag = 0.05f + 0.02f * (absAngle / 15f);
-        else if (absAngle < 30f)
-        {
-            float t = (absAngle - 15f) / 15f;
-            parasiticDrag = Mathf.Lerp(0.07f, 0.3f, t);
-        }
-        else if (absAngle < 90f)
-        {
-            float t = (absAngle - 30f) / 60f;
-            parasiticDrag = Mathf.Lerp(0.3f, maxCoefficientOfDrag, t);
-        }
-        else
-            parasiticDrag = maxCoefficientOfDrag;
-        
-        return inducedDrag + parasiticDrag;
+        Debug.LogError($"[UnifiedSail] maxCoefficientOfLift is zero or negative: {maxCoefficientOfLift}");
+        return 0f;
     }
     
-    // ===================================================================
-    // SEKCJA 8: POMOCNICZE METODY
-    // ===================================================================
+    float result;
     
+    if (absAngle < 15f)
+    {
+        result = (maxCoefficientOfLift / 15f) * absAngle;
+    }
+    else if (absAngle < 30f)
+    {
+        float t = (absAngle - 15f) / 15f;
+        result = Mathf.Lerp(maxCoefficientOfLift, maxCoefficientOfLift * 0.53f, t);
+    }
+    else if (absAngle < 90f)
+    {
+        float t = (absAngle - 30f) / 60f;
+        result = Mathf.Lerp(maxCoefficientOfLift * 0.53f, maxCoefficientOfLift * 0.067f, t);
+    }
+    else
+    {
+        result = maxCoefficientOfLift * 0.067f;
+    }
+    
+    // Safety check result
+    if (float.IsNaN(result) || float.IsInfinity(result))
+    {
+        Debug.LogError($"[UnifiedSail] CalculateLiftCoefficient result is invalid! " +
+                      $"result={result}, absAngle={absAngle}, maxCL={maxCoefficientOfLift}");
+        return 0f;
+    }
+    
+    return result;
+}
+
+float CalculateDragCoefficient(float absAngle, float CL, float AR)
+{
+    // Safety checks
+    if (float.IsNaN(absAngle) || float.IsInfinity(absAngle))
+    {
+        Debug.LogError($"[UnifiedSail] CalculateDragCoefficient: Invalid absAngle={absAngle}");
+        return 0.05f; // Minimum parasitic drag
+    }
+    
+    if (float.IsNaN(CL) || float.IsInfinity(CL))
+    {
+        Debug.LogError($"[UnifiedSail] CalculateDragCoefficient: Invalid CL={CL}");
+        return 0.05f;
+    }
+    
+    if (float.IsNaN(AR) || float.IsInfinity(AR) || AR <= 0.001f)
+    {
+        Debug.LogError($"[UnifiedSail] CalculateDragCoefficient: Invalid AR={AR}");
+        return 0.05f;
+    }
+    
+    if (oswaldEfficiency <= 0.001f)
+    {
+        Debug.LogError($"[UnifiedSail] oswaldEfficiency is zero or negative: {oswaldEfficiency}");
+        oswaldEfficiency = 0.9f; // Default
+    }
+    
+    // Induced drag
+    float denominator = Mathf.PI * oswaldEfficiency * AR;
+    if (denominator <= 0.001f)
+    {
+        Debug.LogError($"[UnifiedSail] Invalid denominator in induced drag! " +
+                      $"PI={Mathf.PI}, oswald={oswaldEfficiency}, AR={AR}");
+        return 0.05f;
+    }
+    
+    float inducedDrag = (CL * CL) / denominator;
+    
+    // Safety check induced drag
+    if (float.IsNaN(inducedDrag) || float.IsInfinity(inducedDrag))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid inducedDrag={inducedDrag}! CL={CL}, denom={denominator}");
+        inducedDrag = 0f;
+    }
+    
+    // Parasitic drag
+    float parasiticDrag;
+    if (absAngle < 15f)
+    {
+        parasiticDrag = 0.05f + 0.02f * (absAngle / 15f);
+    }
+    else if (absAngle < 30f)
+    {
+        float t = (absAngle - 15f) / 15f;
+        parasiticDrag = Mathf.Lerp(0.07f, 0.3f, t);
+    }
+    else if (absAngle < 90f)
+    {
+        float t = (absAngle - 30f) / 60f;
+        parasiticDrag = Mathf.Lerp(0.3f, maxCoefficientOfDrag, t);
+    }
+    else
+    {
+        parasiticDrag = maxCoefficientOfDrag;
+    }
+    
+    // Safety check parasitic drag
+    if (float.IsNaN(parasiticDrag) || float.IsInfinity(parasiticDrag))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid parasiticDrag={parasiticDrag}! absAngle={absAngle}, maxCD={maxCoefficientOfDrag}");
+        parasiticDrag = 0.05f;
+    }
+    
+    float totalCD = inducedDrag + parasiticDrag;
+    
+    // Final safety check
+    if (float.IsNaN(totalCD) || float.IsInfinity(totalCD))
+    {
+        Debug.LogError($"[UnifiedSail] Invalid totalCD={totalCD}! induced={inducedDrag}, parasitic={parasiticDrag}");
+        return 0.05f;
+    }
+    
+    return totalCD;
+}
     public Vector3 CalculateWindForce3D(Vector3 windDirection, float windSpeed)
     {
         return CalculateWindForceWithTorque(windDirection, windSpeed).force;
@@ -848,5 +1070,15 @@ public class UnifiedSail : MonoBehaviour
             
             Gizmos.DrawLine(point1, point2);
         }
+    }
+    
+    private bool IsValidFloat(float value)
+    {
+        return !float.IsNaN(value) && !float.IsInfinity(value);
+    }
+
+    private bool IsValidVector(Vector3 v)
+    {
+        return IsValidFloat(v.x) && IsValidFloat(v.y) && IsValidFloat(v.z);
     }
 }
