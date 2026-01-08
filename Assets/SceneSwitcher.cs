@@ -14,7 +14,7 @@ public class SceneSwitcher : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.O))
         {
             SceneManager.LoadScene(0, LoadSceneMode.Single);
-            LightManager.Instance.SwitchLight();
+            //LightManager.Instance.SwitchLight();
             //Time.timeScale = 1f; // na wszelki wypadek
         }
 
