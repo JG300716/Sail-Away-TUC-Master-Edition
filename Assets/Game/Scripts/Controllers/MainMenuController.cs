@@ -7,6 +7,7 @@ public class MainMenuController : MonoBehaviour
     
     void Start()
     {
+        MusicController.Instance.PlayMenu();
         // Time.timeScale = 0f;
         // asyncOp = SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
         // asyncOp.allowSceneActivation = false;
