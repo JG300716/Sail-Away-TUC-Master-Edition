@@ -259,22 +259,22 @@ public class WindSystem : MonoBehaviour
     }
     
     // Wizualizacja GUI
-    void OnGUI()
-    {
-        GUIStyle style = new GUIStyle(GUI.skin.box);
-        style.fontSize = 14;
-        style.alignment = TextAnchor.UpperLeft;
-        
-        // Atan2(x, y) - 0° wskazuje Z+ (północ)
-        float angle = Mathf.Atan2(windDirection.x, windDirection.y) * Mathf.Rad2Deg;
-        
-        string info = $"Wind System\n" +
-                      $"Direction: {angle:F1}°\n" +
-                      $"Speed: {windSpeed:F1} m/s\n" +
-                      $"Controls:\n" +
-                      $"← → : Rotate wind\n" +
-                      $"↑ ↓ : Change speed";
-        
-        GUI.Box(new Rect(10, 10, 200, 130), info, style);
-    }
+    // void OnGUI()
+    // {
+    //     GUIStyle style = new GUIStyle(GUI.skin.box);
+    //     style.fontSize = 14;
+    //     style.alignment = TextAnchor.UpperLeft;
+    //     
+    //     // Atan2(x, y) - 0° wskazuje Z+ (północ)
+    //     float angle = Mathf.Atan2(windDirection.x, windDirection.y) * Mathf.Rad2Deg;
+    //     
+    //     string info = $"Wind System\n" +
+    //                   $"Direction: {angle:F1}°\n" +
+    //                   $"Speed: {windSpeed:F1} m/s\n" +
+    //                   $"Controls:\n" +
+    //                   $"← → : Rotate wind\n" +
+    //                   $"↑ ↓ : Change speed";
+    //     
+    //     GUI.Box(new Rect(10, 10, 200, 130), info, style);
+    // }
 }

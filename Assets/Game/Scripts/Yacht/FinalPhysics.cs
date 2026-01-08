@@ -214,38 +214,38 @@ public class FinalPhysics : MonoBehaviour
     }
 
     // Gizmos dla debugowania
-    void OnDrawGizmos()
-    {
-        if (!showForceGizmos || !Application.isPlaying || yacht == null)
-            return;
-
-        Vector3 yachtPos = yacht.transform.position;
-
-        // Siła żagla (zielona)
-        if (lastSailForce.sqrMagnitude > 0.01f)
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawLine(yachtPos, yachtPos + lastSailForce * 0.01f); // Skalowanie dla widoczności
-            Gizmos.DrawSphere(yachtPos + lastSailForce * 0.01f, 0.1f);
-        }
-
-        // Prędkość jachtu (niebieska)
-        Vector3 velocity = yacht.GetVelocity();
-        if (velocity.sqrMagnitude > 0.01f)
-        {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawLine(yachtPos, yachtPos + velocity);
-        }
-
-        // Kierunek wiatru (czerwony)
-        if (windSystem != null)
-        {
-            Vector2 windDir = windSystem.GetWindDirection();
-            float windSpeed = windSystem.GetWindSpeed();
-            Vector3 windDir3D = new Vector3(windDir.x, 0, windDir.y) * windSpeed * 0.5f;
-            
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(yachtPos + Vector3.up * 2f, yachtPos + Vector3.up * 2f + windDir3D);
-        }
-    }
+    // void OnDrawGizmos()
+    // {
+    //     if (!showForceGizmos || !Application.isPlaying || yacht == null)
+    //         return;
+    //
+    //     Vector3 yachtPos = yacht.transform.position;
+    //
+    //     // Siła żagla (zielona)
+    //     if (lastSailForce.sqrMagnitude > 0.01f)
+    //     {
+    //         Gizmos.color = Color.green;
+    //         Gizmos.DrawLine(yachtPos, yachtPos + lastSailForce * 0.01f); // Skalowanie dla widoczności
+    //         Gizmos.DrawSphere(yachtPos + lastSailForce * 0.01f, 0.1f);
+    //     }
+    //
+    //     // Prędkość jachtu (niebieska)
+    //     Vector3 velocity = yacht.GetVelocity();
+    //     if (velocity.sqrMagnitude > 0.01f)
+    //     {
+    //         Gizmos.color = Color.blue;
+    //         Gizmos.DrawLine(yachtPos, yachtPos + velocity);
+    //     }
+    //
+    //     // Kierunek wiatru (czerwony)
+    //     if (windSystem != null)
+    //     {
+    //         Vector2 windDir = windSystem.GetWindDirection();
+    //         float windSpeed = windSystem.GetWindSpeed();
+    //         Vector3 windDir3D = new Vector3(windDir.x, 0, windDir.y) * windSpeed * 0.5f;
+    //         
+    //         Gizmos.color = Color.red;
+    //         Gizmos.DrawLine(yachtPos + Vector3.up * 2f, yachtPos + Vector3.up * 2f + windDir3D);
+    //     }
+    // }
 }

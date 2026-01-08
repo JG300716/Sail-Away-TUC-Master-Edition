@@ -123,7 +123,7 @@ public class UnifiedSail : MonoBehaviour
     // ===================================================================
     
     private Transform yachtTransform;
-    private Rigidbody yachtRigidbody;
+    public Rigidbody yachtRigidbody;
     private float currentAngle = 0f;
     private UnifiedWindManager windManager;
     
@@ -221,16 +221,6 @@ public class UnifiedSail : MonoBehaviour
         if (windManager == null)
         {
             Debug.LogError($"[UnifiedSail] UnifiedWindManager not found in scene!");
-        }
-        
-        // Znajdź Rigidbody jachtu
-        if (yachtTransform != null)
-        {
-            yachtRigidbody = yachtTransform.GetComponent<Rigidbody>();
-            if (yachtRigidbody == null)
-            {
-                Debug.LogWarning($"[UnifiedSail] No Rigidbody found on yacht parent!");
-            }
         }
         
         // Auto-znajdź Cloth jeśli włączone
