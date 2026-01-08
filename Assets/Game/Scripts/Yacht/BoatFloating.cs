@@ -41,12 +41,6 @@ namespace Game.Scripts
                 return;
             }
             
-            if (waterSurface == null)
-            {
-                Debug.LogError("Nie przypisano HDRP Water Surface!");
-                return;
-            }
-            
             rb.linearDamping = waterDrag;
             rb.angularDamping = angularDrag;
             

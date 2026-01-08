@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1290241423310600124}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: RightCloser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7466898491283349655}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Buyency
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -75,7 +75,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3743933622507953594}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: LeftCloser
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -106,7 +106,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8516935786364187476}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: RightFurther
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -137,7 +137,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8874210660632937159}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: LeftFurther
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -170,6 +170,10 @@ PrefabInstance:
     - target: {fileID: 100000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
       propertyPath: m_Name
       value: treasure_chest_closed
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 100000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
       propertyPath: m_IsActive
@@ -232,6 +236,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4013224232744990327}
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3424221932387169458}
+    - targetCorrespondingSourceObject: {fileID: 100000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5013706749177988354}
   m_SourcePrefab: {fileID: 100100000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
 --- !u!1 &1433272329251117496 stripped
 GameObject:
@@ -294,6 +304,41 @@ MonoBehaviour:
   wireframeColor: {r: 0, g: 1, b: 1, a: 1}
   pointColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   pointSize: 0.15
+--- !u!114 &3424221932387169458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1433272329251117496}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faff801f887fe8e4983eae45facf7aa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controller: {fileID: 0}
+--- !u!64 &5013706749177988354
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1433272329251117496}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 4300000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
 --- !u!4 &1433272329251538328 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 400000, guid: 6eef872720cdc8049aa971a249922bcc, type: 3}
