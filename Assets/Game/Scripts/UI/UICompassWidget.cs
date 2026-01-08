@@ -9,7 +9,7 @@ namespace Game.Scripts
     {
         [Header("References")]
         [SerializeField] private YachtState yachtState;
-        [SerializeField] private UnifiedYachtPhysics yachtPhysics;
+        [SerializeField] private FinalPhysics yachtPhysics;
 
         [Header("UI Elements")]
         [SerializeField] private RectTransform compassCircle; // okrąg kompasu

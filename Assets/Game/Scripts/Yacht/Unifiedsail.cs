@@ -292,7 +292,7 @@ public class UnifiedSail : MonoBehaviour
         // Jeśli nie ma Cloth, stwórz prostą wizualizację sprite
         if (!useClothVisuals || sailCloth == null)
         {
-            CreateSpriteVisualization();
+            //CreateSpriteVisualization();
         }
         
         string setupInfo = $"[UnifiedSail] {gameObject.name} initialized: ";

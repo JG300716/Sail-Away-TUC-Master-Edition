@@ -24,13 +24,13 @@ namespace Game.Scripts
         [Header("References")]
         [SerializeField] public UnifiedYachtPhysics yachtPhysics;
 
-        private bool Initialized = false;
+        private bool Initialized = true;
 
         void Start()
         {
             V_current = 0.0;
             Deg_from_north = transform.eulerAngles.y;
-            Initialized = yachtPhysics != null;
+            //Initialized = yachtPhysics != null;
 
             if (!Initialized)
             {
@@ -53,35 +53,35 @@ namespace Game.Scripts
         // =========================================================
         // ===================== UPDATE ============================
         // =========================================================
-        void Update()
-        {
-            if (!Initialized)
-                return;
-
-            // 1. Pobierz aktualne przyśpieszenie z fizyki (świat XZ)
-            Vector2 accelWorld = yachtPhysics.GetCurrentAcceleration2D();
-
-            // 2. Oblicz kierunek jachtu z kursu
-            Vector2 forwardDir = new Vector2(
-                Mathf.Sin((float)Deg_from_north * Mathf.Deg2Rad),
-                Mathf.Cos((float)Deg_from_north * Mathf.Deg2Rad)
-            ).normalized;
-
-            // 3. Rzut przyśpieszenia na oś jachtu (1D model)
-            double accelForward = Vector2.Dot(accelWorld, forwardDir);
-
-            // 4. Zapisz przyśpieszenie
-            Acceleration = accelForward;
-
-            // 5. Integracja prędkości
-            V_current += Acceleration * Time.deltaTime;
-
-            // 6. Ograniczenie cofania
-            if (V_current < -2.0)
-                V_current = -2.0;
-
-            // (opcjonalnie) ruch wizualny jeśli NIE używasz Rigidbody
-            transform.Translate(Vector3.forward * (float)(V_current * Time.deltaTime));
-        }
+        // void Update()
+        // {
+        //     if (!Initialized)
+        //         return;
+        //
+        //     // 1. Pobierz aktualne przyśpieszenie z fizyki (świat XZ)
+        //     Vector2 accelWorld = yachtPhysics.GetCurrentAcceleration2D();
+        //
+        //     // 2. Oblicz kierunek jachtu z kursu
+        //     Vector2 forwardDir = new Vector2(
+        //         Mathf.Sin((float)Deg_from_north * Mathf.Deg2Rad),
+        //         Mathf.Cos((float)Deg_from_north * Mathf.Deg2Rad)
+        //     ).normalized;
+        //
+        //     // 3. Rzut przyśpieszenia na oś jachtu (1D model)
+        //     double accelForward = Vector2.Dot(accelWorld, forwardDir);
+        //
+        //     // 4. Zapisz przyśpieszenie
+        //     Acceleration = accelForward;
+        //
+        //     // 5. Integracja prędkości
+        //     V_current += Acceleration * Time.deltaTime;
+        //
+        //     // 6. Ograniczenie cofania
+        //     if (V_current < -2.0)
+        //         V_current = -2.0;
+        //
+        //     // (opcjonalnie) ruch wizualny jeśli NIE używasz Rigidbody
+        //     //transform.Translate(Vector3.forward * (float)(V_current * Time.deltaTime));
+        // }
     }
 }
