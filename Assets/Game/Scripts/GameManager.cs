@@ -6,7 +6,7 @@ using Game.Scripts.Weather;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
-//using Game.Assets.Ocean;
+using Game.Scripts.Weather;
 
 namespace Game.Scripts
 {
@@ -118,7 +118,7 @@ namespace Game.Scripts
             else
             {
                 MusicController.Instance.PlayMain();
-                //LightManager.SwitchLight();
+                LightManager.SwitchLight();
                 SceneManager.UnloadSceneAsync(2);
                 UIManager.ShowCanvasGroup(UIManager.Instance.steeringHudUI);
                 Cursor.lockState = CursorLockMode.Locked;

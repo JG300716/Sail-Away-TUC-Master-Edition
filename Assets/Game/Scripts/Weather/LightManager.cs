@@ -1,11 +1,10 @@
 using UnityEngine;
+using Game.Scripts.Interface;
 
-namespace Game.Assets.Ocean
+namespace Game.Scripts.Weather
 {
     public class LightManager : SingletonInterface<LightManager>
     {
-        public static LightManager Instance;
-
         [Header("Lights")] public GameObject lightA;
         public GameObject lightB;
 
@@ -14,26 +13,18 @@ namespace Game.Assets.Ocean
         // 1 - noc
         // 2 - blood moon
 
-        void Awake()
+        void Start()
         {
-            // prosty singleton
-            if (Instance != null && Instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-
             ApplyMode();
         }
 
-        static public void SwitchLight()
+        public static void SwitchLight()
         {
-            LightManager.Instance.mode = (mode + 1) % 3;
-            Debug.Log("Light mode switched to: " + LightManager.Instance.mode);
-            LightManager.Instance.ApplyMode();
+            if (Instance == null)
+                return;
+            Instance.mode = (Instance.mode + 1) % 3;
+            Debug.Log("Light mode switched to: " + Instance.mode);
+            Instance.ApplyMode();
         }
 
         void ApplyMode()
