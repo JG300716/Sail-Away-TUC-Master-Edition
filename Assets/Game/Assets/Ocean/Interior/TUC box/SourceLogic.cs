@@ -13,6 +13,8 @@ public class SourceLogic : MonoBehaviour
 
         portOut = output.GetComponent<LogicPort>();
 
+        portOut.origin = PortOrigin.Source;
+
     }
     void Update()
     {

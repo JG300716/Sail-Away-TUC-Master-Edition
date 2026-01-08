@@ -16,6 +16,11 @@ public class AndGateLogic : MonoBehaviour
         portB = inputB.GetComponent<LogicPort>();
         portOut = output.GetComponent<LogicPort>();
 
+
+        portA.origin = PortOrigin.And;
+        portB.origin = PortOrigin.And;
+        portOut.origin = PortOrigin.And;
+
     }
     void Update()
     {
