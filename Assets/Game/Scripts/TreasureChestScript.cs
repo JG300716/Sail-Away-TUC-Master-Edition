@@ -1,30 +1,35 @@
 using UnityEngine;
+using Game.Scripts.Controllers;
 
-public class TreasureChestScript : MonoBehaviour
+namespace Game.Scripts
 {
-    public TreasureChestController controller;
-    
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
 
-    // Update is called once per frame
-    void Update()
+    public class TreasureChestScript : MonoBehaviour
     {
-        
-    }
-    
-    private void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("Trigger skrzynki");
-        if (other.CompareTag("Boat"))
+        public TreasureChestController controller;
+
+        // Start is called once before the first execution of Update after the MonoBehaviour is created
+        void Start()
         {
-            Debug.Log("Łódka zebrała skrzynkę!");
-            
-            controller.OnCollectChest(this);
-            Destroy(gameObject);
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            Debug.Log("Trigger skrzynki");
+            if (other.CompareTag("Boat"))
+            {
+                Debug.Log("Łódka zebrała skrzynkę!");
+
+                controller.OnCollectChest(this);
+                Destroy(gameObject);
+            }
         }
     }
 }
