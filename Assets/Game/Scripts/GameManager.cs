@@ -39,7 +39,7 @@ namespace Game.Scripts
             
             MusicController.Instance.PlayMain();
             weatherManager.Initialize(mainCamera);
-            UnsteerYacht();
+            SteerYacht();
         }
 
         void Update()
