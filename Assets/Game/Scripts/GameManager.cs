@@ -3,7 +3,6 @@ using Game.Scripts.Interface;
 using Game.Scripts.Controllers;
 using Game.Scripts.UI;
 using Game.Scripts.Weather;
-using TMPro;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 
@@ -22,7 +21,6 @@ namespace Game.Scripts
         [SerializeField] private Transform HumanPlayer;
         [SerializeField] private Transform Yacht;
         [SerializeField] private Transform playerSteeringAttachPoint;
-        [SerializeField] private TMP_Text collectedChestCounterText;
 
         private static bool secondaryLoaded = false;
 
@@ -33,7 +31,6 @@ namespace Game.Scripts
             if (uiManager.IsUnityNull()) throw new System.Exception("UIManager instance is null in GameManager.");
             if (controllerManager.IsUnityNull()) throw new System.Exception("ControllerManager instance is null in GameManager.");
             
-            MusicController.Instance.PlayMain();
             weatherManager.Initialize(mainCamera);
             UnsteerYacht();
         }
@@ -79,11 +76,6 @@ namespace Game.Scripts
         {
             if (!secondaryLoaded)
             {
-                if (int.Parse(Instance.collectedChestCounterText.text) == 0)
-                {
-                    return;
-                }
-                MusicController.Instance.PlayRemix();
                 SceneManager.LoadScene(1, LoadSceneMode.Additive);
                 UIManager.HideCanvasGroup(UIManager.Instance.steeringHudUI);
                 UIManager.TriggerUI(UIManager.basicExitTriggerMessage);
@@ -91,7 +83,6 @@ namespace Game.Scripts
             }
             else
             {
-                MusicController.Instance.PlayMain();
                 SceneManager.UnloadSceneAsync(1);
                 LightManager.Instance.SwitchLight();
                 UIManager.ShowCanvasGroup(UIManager.Instance.steeringHudUI);

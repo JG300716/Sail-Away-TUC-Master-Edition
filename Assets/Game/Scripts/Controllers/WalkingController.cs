@@ -48,7 +48,6 @@ namespace Game.Scripts.Controllers
             if (!isActive) return;
             if (!triggerBuffor) return;
             triggerBuffor = false;
-            Debug.Log($"LOG {other.name} {other.tag}");
             if (other.IsUnityNull()) return;
             if (other.CompareTag("Enter")) GameManager.EnterYacht();
             if (other.CompareTag("Exit")) GameManager.LeaveYacht();
