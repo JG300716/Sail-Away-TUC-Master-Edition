@@ -25,6 +25,7 @@ namespace Game.Scripts
         [SerializeField] private TMP_Text collectedChestCounterText;
 
         private static bool secondaryLoaded = false;
+        private bool isPaused = false;
 
         void Start()
         {
@@ -36,6 +37,30 @@ namespace Game.Scripts
             MusicController.Instance.PlayMain();
             weatherManager.Initialize(mainCamera);
             UnsteerYacht();
+        }
+
+        void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape) && !isPaused)
+            {
+                PauseGame();
+            }
+        }
+
+        public void PauseGame()
+        {
+            Time.timeScale = 0f;
+            MusicController.Instance.PauseMusic();
+            SceneManager.LoadScene(3, LoadSceneMode.Additive);
+            isPaused = true;
+        }
+        
+        public void ResumeGame()
+        {
+            Time.timeScale = 1f;
+            MusicController.Instance.ResumeMusic();
+            SceneManager.UnloadSceneAsync(3);
+            isPaused = false;
         }
 
         public static void SteerYacht()
@@ -84,7 +109,7 @@ namespace Game.Scripts
                     return;
                 }
                 MusicController.Instance.PlayRemix();
-                SceneManager.LoadScene(1, LoadSceneMode.Additive);
+                SceneManager.LoadScene(2, LoadSceneMode.Additive);
                 UIManager.HideCanvasGroup(UIManager.Instance.steeringHudUI);
                 UIManager.TriggerUI(UIManager.basicExitTriggerMessage);
                 //Time.timeScale = 0f;
@@ -92,7 +117,7 @@ namespace Game.Scripts
             else
             {
                 MusicController.Instance.PlayMain();
-                SceneManager.UnloadSceneAsync(1);
+                SceneManager.UnloadSceneAsync(2);
                 UIManager.ShowCanvasGroup(UIManager.Instance.steeringHudUI);
                 Cursor.lockState = CursorLockMode.Locked;
                 //Time.timeScale = 1f;

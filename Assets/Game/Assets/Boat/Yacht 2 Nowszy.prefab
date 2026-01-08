@@ -182,7 +182,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3808689921128561914, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
       propertyPath: m_Name
-      value: Yacht 2 Variant
+      value: Yacht 2 Nowszy
       objectReference: {fileID: 0}
     - target: {fileID: 3808689921128561914, guid: 9e16e61712a62444b92fbcc6da032e18, type: 3}
       propertyPath: m_TagString

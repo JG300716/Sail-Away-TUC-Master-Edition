@@ -6,6 +6,8 @@ public class MusicController : MonoBehaviour
 
     [SerializeField] private AudioClip mainClip;
     [SerializeField] private AudioClip remixClip;
+    [SerializeField] private AudioClip menuClip;
+    
     private AudioSource audioSource;
 
     void Awake()
@@ -32,6 +34,12 @@ public class MusicController : MonoBehaviour
     public void PlayRemix()
     {
         audioSource.clip = remixClip;
+        audioSource.Play();
+    }
+    
+    public void PlayMenu()
+    {
+        audioSource.clip = menuClip;
         audioSource.Play();
     }
 
