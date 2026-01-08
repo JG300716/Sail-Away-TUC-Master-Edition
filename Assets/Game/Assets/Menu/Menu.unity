@@ -714,8 +714,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1dd3ecb3b9acda3418572cad9c9e00bb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainClip: {fileID: 8300000, guid: edceb13195b880846819b198a5c1294f, type: 3}
-  remixClip: {fileID: 8300000, guid: 8ae89445989372543b87ad590347dc32, type: 3}
+  mainClip: {fileID: 8300000, guid: ccc805f29d1a1664db5bf3eed6639c8c, type: 3}
+  remixClip: {fileID: 8300000, guid: 845480794365fdb48854df7bd36686b8, type: 3}
   menuClip: {fileID: 8300000, guid: 454774e663851fc49966975d51873a25, type: 3}
 --- !u!82 &427177044
 AudioSource:
