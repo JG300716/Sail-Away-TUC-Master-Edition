@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Game.Scripts.Interface;
 using Game.Scripts.Controllers;
@@ -13,6 +14,7 @@ namespace Game.Scripts
 
     public class GameManager : SingletonInterface<GameManager>
     {
+        public event Action OnTucSolved;
         private static WeatherManager weatherManager => WeatherManager.Instance;
         private static ControllerManager controllerManager => ControllerManager.Instance;
         
@@ -46,6 +48,11 @@ namespace Game.Scripts
             {
                 PauseGame();
             }
+        }
+
+        public void TucSolved()
+        {
+            OnTucSolved?.Invoke();
         }
 
         public void PauseGame()

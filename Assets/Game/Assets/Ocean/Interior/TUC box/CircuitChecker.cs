@@ -1,4 +1,5 @@
 using UnityEngine;
+using Game.Scripts;
 
 public class CircuitChecker : MonoBehaviour
 {
@@ -49,9 +50,10 @@ public class CircuitChecker : MonoBehaviour
 
     void Update()
     {
-        if (CheckWin())
+        if (CheckWin() && !circuitGood)
         {
             Debug.Log("WYGRANA");
+            GameManager.Instance.TucSolved();
             circuitGood = true;
         }
     }

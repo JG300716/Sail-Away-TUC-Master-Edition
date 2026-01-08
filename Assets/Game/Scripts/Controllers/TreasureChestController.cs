@@ -15,6 +15,7 @@ namespace Game.Scripts.Controllers
          [SerializeField] private float chestGenerationRadius = 50f;
          [SerializeField] private int chestCount = 10;
          [SerializeField] private TMP_Text collectedChestCounterText;
+         [SerializeField] private TMP_Text unlockedChestCounterText;
          [SerializeField] private WaterSurface waterSurface;
          private List<GameObject> spawnedChests = new List<GameObject>();
          private int collectedChests = 0;
@@ -34,6 +35,24 @@ namespace Game.Scripts.Controllers
          void Update()
          {
 
+         }
+         
+         private void OnEnable()
+         {
+             GameManager.Instance.OnTucSolved += HandleTucSolved;
+         }
+
+         private void OnDisable()
+         {
+             GameManager.Instance.OnTucSolved -= HandleTucSolved;
+         }
+
+         private void HandleTucSolved()
+         {
+             int collectedChests = int.Parse(collectedChestCounterText.text) - 1;
+             collectedChestCounterText.text =  collectedChests.ToString();
+             int unlockedChests = int.Parse(unlockedChestCounterText.text) + 1;
+             unlockedChestCounterText.text = unlockedChests.ToString();
          }
 
          public void OnCollectChest(TreasureChestScript chest)
