@@ -86,7 +86,7 @@ namespace Game.Scripts
             float closestDistance = float.MaxValue;
 
             // Pozycja znacznika w lokalnych współrzędnych panelu
-            float markerX = centerMarker.rectTransform.anchoredPosition.x + 200;
+            float markerX = centerMarker.rectTransform.anchoredPosition.x + 300;
 
             foreach (var skin in skins)
             {
